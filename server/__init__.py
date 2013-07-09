@@ -21,7 +21,7 @@ QueueOwners = {'acquire':AcquireIn,'serial':SerialIn,'storage':StorageIn}
 
 # wait until objects are defined to initialize workers
 from acquire import Acquire
-from filer import Filer
+from storage import Storage
 from serial import Serial
 
 def run():
@@ -35,11 +35,11 @@ def run():
 
     # create and start worker threads
     AcquireThread = Acquire(AcquireIn,MessageBox)
-    FilerThread = Filer(FilerIn,MessageBox)
+    StorageThread = Storage(StorageIn,MessageBox)
     SerialThread = Serial(SerialIn,MessageBox)
 
     AcquireThread.start()
-    FilerThread.start()
+    StorageThread.start()
     SerialThread.start()
 
     # pass messages until program is ended
