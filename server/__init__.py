@@ -11,6 +11,9 @@ OutputSemaphore = Semaphore()
 # create event to signal threads to stop
 QuitinTime = Event()
 
+# create event for time update
+TimeUpdated = Event()
+
 # create message passing queues
 AcquireIn = Queue.Queue()
 SerialIn = Queue.Queue()
@@ -25,10 +28,11 @@ from storage import Storage
 from serial import Serial
 
 def run():
+    """Run main server loop"""
 
     # create signal handler
     def signal_handler(sig, frame):
-        print '\nCaught signal {0}... Quiting'.format(str(sig))
+        print '\nCaught signal {0}... Quitin\' Time!'.format(str(sig))
         QuitinTime.set()
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

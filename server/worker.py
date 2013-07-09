@@ -9,6 +9,7 @@ class Worker(Thread):
         super(Worker, self).__init__()
         self.InQueue = InQueue
         self.MessageBox = MessageBox
+        self.messageBound = False
 
     def run(self):
         """main worker loop"""
@@ -23,13 +24,14 @@ class Worker(Thread):
             # check for messages
             while True:
                 try: 
-                    msg = self.InQueue.get_nowait()
+                    msg = self.InQueue.get(block=self.messageBound,timeout=0.5)
                     if Debug:
                         self.output('received ' + str(msg))
                     exec('self.{0}(*{1})'.format(msg[0],msg[1:]))
                 except Queue.Empty:
                     break
-            time.sleep(.1)
+            if  not self.messageBound:
+                time.sleep(.1)
 
     def buildUp(self):
         """executed when worker first starts"""

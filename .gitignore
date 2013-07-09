@@ -1,2 +1,5 @@
 *.swp
 *.pyc
+*.db
+__pycache__
+

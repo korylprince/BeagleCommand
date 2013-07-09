@@ -1,4 +1,8 @@
+import time
+from BeagleCommand.server import TimeUpdated
 from worker import Worker
 
 class Serial(Worker):
-    pass
+
+    def buildUp(self):
+        TimeUpdated.set()
