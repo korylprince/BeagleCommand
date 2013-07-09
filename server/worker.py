@@ -19,7 +19,7 @@ class Worker(Thread):
             # Check if main thread is ready to stop
             if QuitinTime.is_set():
                 self.tearDown()
-                self.output('ending')
+                self.output('Quitin\'')
                 return
             # check for messages
             while True:
@@ -30,8 +30,8 @@ class Worker(Thread):
                     exec('self.{0}(*{1})'.format(msg[0],msg[1:]))
                 except Queue.Empty:
                     break
-            if  not self.messageBound:
-                time.sleep(.1)
+            if not self.messageBound:
+                self.loop()
 
     def buildUp(self):
         """executed when worker first starts"""
@@ -40,6 +40,10 @@ class Worker(Thread):
     def tearDown(self):
         """executed right before worker quits"""
         pass
+
+    def loop(self):
+        """loop executed when not message bound"""
+        time.sleep(0.1)
 
     def output(self,msg):
         """acquire lock on output screen and write to it"""
