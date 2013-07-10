@@ -5,7 +5,7 @@ from datetime import datetime
 import BeagleCommand
 from BeagleCommand.server import TimeUpdated
 from worker import Worker
-from message import Message
+from BeagleCommand.util import Message
 
 # hours per second
 hps = 1.0/(60*60)
@@ -40,6 +40,7 @@ class Storage(Worker):
             self.process(row)
 
     def tearDown(self):
+        self.output('Closing '+self.dbpath)
         self.conn.commit()
         self.conn.close()
 
