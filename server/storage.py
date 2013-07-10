@@ -3,7 +3,7 @@ import os
 import time
 from datetime import datetime
 import BeagleCommand
-from BeagleCommand.server import TimeUpdated
+from BeagleCommand.server import TimeUpdated, QuitinTime
 from worker import Worker
 from BeagleCommand.util import Message
 
@@ -29,7 +29,14 @@ class Storage(Worker):
 
     def buildUp(self):
         self.output('Waiting for time to update...')
-        TimeUpdated.wait()
+        # wait for time to come
+        while not TimeUpdated.is_set() and not QuitinTime.is_set():
+            TimeUpdated.wait(0.5)
+        else:
+            # if time never came and it's time to quit, skip tear down
+            if QuitinTime.is_set():
+                self.tearDown = lambda : None
+                return
         self.output('Time updated... Starting')
         self.dbpath = '{0}/storage/{1}.db'.format(os.path.abspath(os.path.dirname(BeagleCommand.__file__)),datetime.now().strftime('%m.%d.%Y'))
         self.output('Using '+self.dbpath)

@@ -19,10 +19,10 @@ class Packet(object):
             self.command = command
             self.args = args
         else:
-            if checksum(packetstr):
+            if self.checksum(packetstr):
                 self.ID, cmd, chksum = packetstr.split('\0')
                 self.command = cmd.split(',')[0].strip()
-                self.args = [x.strip() for x in cmd.split(',')]
+                self.args = [x.strip() for x in cmd.split(',')[1:]]
             else:
                 raise PacketException(packetstr)
 
