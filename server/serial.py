@@ -3,7 +3,7 @@ import io, select
 from threading import Semaphore
 from BeagleCommand.server import TimeUpdated, Debug
 from worker import Worker
-from BeagleCommand.util import Message, Packet
+from BeagleCommand.util import Message, Packet, PacketException
 from BeagleCommand import pyserial
 
 class Serial(Worker):

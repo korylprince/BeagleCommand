@@ -12,8 +12,8 @@ class PacketException(Exception):
         self.packetstr = packetstr
 
 class Packet(object):
-    """Simple object to wrap serial packets"""
-    def __init(self, ID=None, command=None, args=None, packetstr=None):
+    """Simple object to wrap serial packets and verify them"""
+    def __init__(self, ID=None, command=None, args=None, packetstr=None):
         if ID:
             self.ID = ID
             self.command = command
@@ -27,15 +27,15 @@ class Packet(object):
                 raise PacketException(packetstr)
 
     def __str__(self):
-        return checksumgen('{0}\0{1},{2}'.format(self.ID,self.command,','.join(args)))
+        return self.checksumgen('{0}\0{1},{2}'.format(self.ID,self.command,','.join(self.args)))
 
     #http://code.activestate.com/recipes/52251/
-    def checksumgen(s):
+    def checksumgen(self,s):
         """A simple packet checksum"""
         return '{0}\0{1}\n'.format(s,reduce(operator.add, map(ord, s)) % 256)
 
-    def checksum(s):
+    def checksum(self,s):
         try:
-            return s == checksumgen('\0'.join(s.split('\0')[0:2]))
+            return s == self.checksumgen('\0'.join(s.split('\0')[0:2]))
         except:
             return False
