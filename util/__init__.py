@@ -9,4 +9,10 @@ class Message(object):
 #http://code.activestate.com/recipes/52251/
 def checksumgen(s):
     """A simple packet checksum"""
-    return reduce(operator.add, map(ord, s)) % 256
+    return '{0}\0{1}\n'.format(s,reduce(operator.add, map(ord, s)) % 256)
+
+def checksum(s):
+    try:
+        return s == checksumgen('\0'.join(s.split('\0')[0:2]))
+    except:
+        return False
