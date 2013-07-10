@@ -7,6 +7,6 @@ class Message(object):
         self.msg = msg
 
 #http://code.activestate.com/recipes/52251/
-def checksum(s):
+def checksumgen(s):
     """A simple packet checksum"""
     return reduce(operator.add, map(ord, s)) % 256
