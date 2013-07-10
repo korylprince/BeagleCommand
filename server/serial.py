@@ -14,7 +14,7 @@ class Serial(Worker):
 
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
-        self.serial = pyserial.Serial('/dev/ttyO2', 19200)
+        self.serial = pyserial.Serial('/dev/ttyO2', 115200)
         self.serial.nonblocking()
         self.output('Waiting for time...')
 
