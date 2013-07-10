@@ -3,7 +3,7 @@ import io, select
 from threading import Semaphore
 from BeagleCommand.server import TimeUpdated, Debug
 from worker import Worker
-from BeagleCommand.util import Message
+from BeagleCommand.util import Message, Packet
 from BeagleCommand import pyserial
 
 class Serial(Worker):
@@ -20,7 +20,12 @@ class Serial(Worker):
 
     def loop(self):
         if select.select([self.serial],[],[],0.1)[0]:
-            recv = self.serial.readline()
+            try:
+                p = Packet(self.serial.readline())
+                self.output('Got Packet ID: {0}, Command: {1}, Arguments: {2}'.format(p.ID, p.command, str(p.args)))
+            except PacketException as e:
+                if Debug:
+                    self.output('Invalid Checksum on Packet: ' + e.packetstr)
 
     def send(self,ID,*args):
         if Debug:
