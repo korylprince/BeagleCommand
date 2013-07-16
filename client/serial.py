@@ -76,7 +76,7 @@ class Serial(object):
 
     def reply(self, ID, bytestr):
         """Send reply back to web server"""
-        vals = array.array('d')
+        vals = array.array('f')
         vals.fromstring(bytestr)
         print vals.tolist()
         self.replyStore[ID].put(vals.tolist())
