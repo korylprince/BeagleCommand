@@ -1,21 +1,44 @@
-from threading import Semaphore, Event
+import signal, os
+import Queue
 from BeagleCommand import QuitinTime
-from BeagleCommand.util import Data
 
-d = Data()
+# create message passing queues
+SerialIn = Queue.Queue()
+StorageIn = Queue.Queue()
+MessageBox = Queue.Queue()
+
+QueueOwners = {'serial':SerialIn,'storage':StorageIn}
+
+# wait until objects are defined to initialize workers
+from storage import Storage
+from serial import Serial
 
 def run():
     """Run main server loop"""
 
-    #create serial interface
-    from serial import Serial
-    d.serial = Serial()
+    # create signal handler
+    def signal_handler(sig, frame):
+        print '\nCaught signal {0}... Quitin\' Time!'.format(str(sig))
+        QuitinTime.set()
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
-    # start web server
-    from web import app
-    app.run(debug=True, use_reloader=False)
+    # create and start worker threads
+    StorageThread = Storage(StorageIn,MessageBox)
+    SerialThread = Serial(SerialIn,MessageBox)
 
-    QuitinTime.set()
+    StorageThread.start()
+    SerialThread.start()
 
-if __name__ == '__main__':
-    run()
+    # pass messages until program is ended
+    while True:
+        # check to see if it's time to quit
+        if QuitinTime.is_set():
+            break
+        try:
+            # use timeout so that main thread can catch signals
+            msg = MessageBox.get(timeout=0.5)
+            for owner in msg.to:
+                QueueOwners[owner].put(msg.msg)
+        except Queue.Empty:
+            pass

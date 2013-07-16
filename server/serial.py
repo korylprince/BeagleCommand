@@ -26,7 +26,7 @@ class Serial(Worker):
                 packetstr = self.readline()
                 p = Packet(packetstr=packetstr)
                 if Debug:
-                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, str(p.val))
+                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, str(p.val)))
                 if '-' in p.command:
                     command, typestr = p.command.split('-')
                     exec('self.{0}(\'{1}\',\'{2}\')'.format(command, typestr, p.val))

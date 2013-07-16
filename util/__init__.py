@@ -39,7 +39,7 @@ class Packet(object):
     commands = {'\x00': 'time',
                 '\x01': 'notime',
                 '\x02': 'reboot',
-                '\x03': 'poweroff'
+                '\x03': 'poweroff',
                 '\x04': 'get-time',
                 '\x05': 'get-voltage',
                 '\x06': 'get-usedAmps',
@@ -49,10 +49,10 @@ class Packet(object):
                 '\x0a': 'reply-voltage',
                 '\x0b': 'reply-usedAmps',
                 '\x0c': 'reply-chargedAmps',
-                '\x0d': 'reply-kwhs',
+                '\x0d': 'reply-kwhs'
                }
 
-    codes = {v:k for k,v in self.commands.iteritems()}
+    codes = {v:k for k,v in commands.iteritems()}
 
     def __init__(self, command=None, val=None, packetstr=None):
         if command:
@@ -61,14 +61,14 @@ class Packet(object):
         else:
             if self.checksum(packetstr):
                 try:
-                    self.command, self.val = commands[packetstr[0]], self.unpack(packetstr[1:-1])
+                    self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
                 except KeyError:
                     raise PacketCommandError(packetstr)
             else:
                 raise PacketChecksumException(packetstr)
 
     def __str__(self):
-        return self.checksumgen(codes[self.command]+self.pack(self.val))
+        return self.checksumgen(self.codes[self.command]+self.pack(self.val))
 
     def pack(self,val):
         return struct.pack('f',val)
@@ -135,5 +135,5 @@ class Worker(Thread):
     def output(self,msg):
         """acquire lock on output screen and write to it"""
         OutputSemaphore.acquire()
-        print '{0}: {1}'.format(self.__class__.__name__, repr(msg))
+        print '{0}: {1}'.format(self.__class__.__name__, msg)
         OutputSemaphore.release()

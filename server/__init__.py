@@ -1,5 +1,4 @@
 import signal, os
-from threading import Semaphore, Event
 import Queue
 from BeagleCommand import QuitinTime, Reboot, PowerOff
 
@@ -52,6 +51,3 @@ def run():
         os.system('reboot')
     if PowerOff.is_set():
         os.system('poweroff')
-
-if __name__ == '__main__':
-    run()
