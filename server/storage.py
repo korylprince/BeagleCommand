@@ -54,7 +54,7 @@ class Storage(Worker):
     def get(self, ID):
         """send serial the latest numbers"""
         m = Message(to=['serial'],msg=['send', ID, 'reply', 
-            str([self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs])])
+            [self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]])
         self.MessageBox.put(m)
 
     def put(self, row):
