@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template, jsonify, request
 import Queue
-from BeagleCommand.client import ser
+from BeagleCommand.client import d
 
 app = Flask(__name__)
 
@@ -12,7 +12,7 @@ def index():
 @app.route('/get')
 def get():
     q = Queue.Queue()
-    ser.get(q)
+    d.serial.get(q)
     vals = q.get()
     return jsonify(vals)
 
@@ -22,5 +22,5 @@ def command():
 
 @app.route('/command', methods=['POST'])
 def commandPost():
-    exec('ser.{0}()'.format(request.form['command']))
+    exec('d.serial.{0}()'.format(request.form['command']))
     return jsonify(status=request.form['command'])

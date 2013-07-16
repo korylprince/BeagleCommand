@@ -1,16 +1,18 @@
 from threading import Semaphore, Event
 from BeagleCommand import QuitinTime
+from BeagleCommand.util import Data
 
-#create serial interface
-from serial import Serial
-ser = Serial()
-
-from web import app
+d = Data()
 
 def run():
     """Run main server loop"""
 
+    #create serial interface
+    from serial import Serial
+    d.serial = Serial()
+
     # start web server
+    from web import app
     app.run(debug=True, use_reloader=False)
 
     QuitinTime.set()

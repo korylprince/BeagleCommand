@@ -5,6 +5,10 @@ import operator
 import sys
 from BeagleCommand import OutputSemaphore, QuitinTime, Debug
 
+class Data(object):
+    """Class to pass data around with"""
+    pass
+
 class Message(object):
     """Simple object to wrap interthread communication"""
     def __init__(self,to,msg):
