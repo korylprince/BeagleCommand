@@ -12,7 +12,7 @@ class Serial(Worker):
 
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
-        self.serial = pyserial.Serial(self.port, 115200)
+        self.serial = pyserial.Serial(self.port, 19200)
         self.serial.timeout = 0.1
         self.output('Waiting for time...')
 
@@ -21,7 +21,7 @@ class Serial(Worker):
         self.serial.close()
 
     def loop(self):
-        if select.select([self.serial],[],[],0.1)[0]:
+        if select.select([self.serial],[],[],0.2)[0]:
             try:
                 packetstr = self.readline()
                 p = Packet(packetstr=packetstr)
