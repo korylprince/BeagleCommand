@@ -42,7 +42,8 @@ class Serial(Worker):
 
     def time(self, val):
         """Set system time"""
-        d = datetime.datetime.fromtimestamp(val)
+        self.output(repr(type(val)))
+        d = datetime.datetime.fromtimestamp(float(val))
         timestr = d.strftime('%Y-%m-%d %H:%M:%S')
         self.output('Got Time. Setting to ' + timestr)
         if os.system('timedatectl set-time "' + timestr + '"') == 0:

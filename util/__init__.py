@@ -67,7 +67,6 @@ class Packet(object):
             if len(packetstr) != 10:
                 raise PacketLengthException
             if self.checksum(packetstr):
-                print repr(packetstr)
                 try:
                     self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
                 except KeyError:
