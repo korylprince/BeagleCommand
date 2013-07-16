@@ -13,8 +13,7 @@ class Serial(Worker):
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
-        self.serial.timeout = 0
-        self.serial.nonblocking()
+        self.serial.timeout = 0.1
         self.output('Waiting for time...')
 
     def tearDown(self):
