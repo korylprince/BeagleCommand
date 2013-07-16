@@ -44,7 +44,7 @@ class Packet(object):
     #http://code.activestate.com/recipes/52251/
     def checksumgen(self,s):
         """A simple packet checksum"""
-        return '{0}^{1}\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
+        return '{0}^{1}\xff\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
 
     def checksum(self,s):
         try:

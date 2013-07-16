@@ -13,6 +13,7 @@ class Serial(Worker):
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
+        self.serial.timeout = 0
         self.serial.nonblocking()
         self.output('Waiting for time...')
 
@@ -23,13 +24,25 @@ class Serial(Worker):
     def loop(self):
         if select.select([self.serial],[],[],0.1)[0]:
             try:
-                p = Packet(packetstr=self.serial.readline('\xff'))
+                packetstr = self.readline()
+                p = Packet(packetstr=packetstr)
                 if Debug:
                     self.output('Got Packet ID: {0}, Command: {1}, Arguments: {2}'.format(p.ID, p.command, str(p.args)))
                     exec('self.{0}("{1}",*{2})'.format(p.command, p.ID, p.args))
             except PacketException as e:
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
+
+    def readline(self):
+        packetstr = []
+        while True:
+            s = self.serial.read(1)
+            packetstr.append(s)
+            if s == '':
+                break
+            elif s == '\xff' and packetstr[-2] == '\xff':
+                break
+        return ''.join(packetstr)
 
     def send(self, ID, command, *args):
         """Send serial packet. If time to set, send request."""
