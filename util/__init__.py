@@ -63,7 +63,7 @@ class Packet(object):
             self.command = command
             self.val = val
         else:
-            if len(packetstr != 10):
+            if len(packetstr) != 10:
                 raise PacketLengthException
             if self.checksum(packetstr):
                 try:
