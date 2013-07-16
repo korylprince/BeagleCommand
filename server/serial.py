@@ -34,10 +34,7 @@ class Serial(Worker):
     def send(self, ID, command, *args):
         """Send serial packet. If time to set, send request."""
         try:
-            if not TimeUpdated.is_set():
-                p = Packet(ID, 'notime')
-            else:
-                p = Packet(ID, command, *args)
+            p = Packet(ID, command, *args)
             if Debug:
                 self.output('Serial Out Packet: '+repr(p))
             self.serial.write(str(p))
@@ -48,6 +45,9 @@ class Serial(Worker):
 
     def get(self, ID):
         """Tell storage to send back latest values"""
+        if not TimeUpdated.is_set():
+            self.send(ID, 'notime')
+            return
         m = Message(to=['storage'],msg=['get', ID])
         self.MessageBox.put(m)
 
