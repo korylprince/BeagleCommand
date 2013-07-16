@@ -1,11 +1,12 @@
 from threading import Semaphore, Event
 import Queue
 from BeagleCommand import QuitinTime
-from web import app
 
 # create message passing queues
 SerialIn = Queue.Queue()
 MessageBox = Queue.Queue()
+
+from web import app
 
 # wait until objects are defined to initialize workers
 from serial import Serial
