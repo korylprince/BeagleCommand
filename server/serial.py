@@ -1,6 +1,6 @@
 import os, time
 import select
-from BeagleCommand import TimeUpdated, QuitinTime Reboot, PowerOff, Debug
+from BeagleCommand import TimeUpdated, QuitinTime, Reboot, PowerOff, Debug
 from BeagleCommand.util import Worker, Message, Packet, PacketException
 from BeagleCommand import pyserial
 
