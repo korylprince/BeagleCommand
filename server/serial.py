@@ -39,7 +39,7 @@ class Serial(Worker):
             else:
                 p = Packet(ID, command, *args)
             if Debug:
-                self.output('Serial Out Packet: '+str(p))
+                self.output('Serial Out Packet: '+repr(p))
             self.serial.write(str(p))
             self.serial.flush()
         except PacketException as e:
