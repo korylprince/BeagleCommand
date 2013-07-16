@@ -20,6 +20,7 @@ class Serial(Worker):
 
     def tearDown(self):
         self.serial.flush()
+        self.output('Closing Serial Port: ' + self.port)
         self.serial.close()
 
     def run(self):
@@ -41,6 +42,7 @@ class Serial(Worker):
                 if QuitinTime.is_set():
                     return
                 self.send('get-'+col,0.0)
+                time.sleep(1.0)
                 self.readSerial()
                 if col in self.rowdict:
                     break

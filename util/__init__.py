@@ -5,7 +5,7 @@ import operator
 import sys
 import struct
 import select
-from BeagleCommand import OutputSemaphore, QuitinTime, Debug
+from BeagleCommand import OutputSemaphore, QuitinTime, Debug, pyserial
 
 class Data(object):
     """Class to pass data around with"""
@@ -65,7 +65,7 @@ class Packet(object):
             self.val = val
         else:
             if len(packetstr) != 10:
-                raise PacketLengthException
+                raise PacketLengthException(packetstr)
             if self.checksum(packetstr):
                 try:
                     self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
@@ -145,11 +145,26 @@ class Worker(Thread):
         print '{0}: {1}'.format(self.__class__.__name__, msg)
         OutputSemaphore.release()
 
+    def reconnectSerial(self):
+        """Reconnect to the serial port if something happens"""
+        self.output('Closing Serial Port: ' + self.port)
+        self.serial.flush()
+        self.serial.close()
+        time.sleep(5)
+        self.output('Reopening Serial Port: ' + self.port)
+        self.serial = pyserial.Serial(self.port, 19200)
+        self.serial.timeout = 0.5
+
     def readline(self):
         """Read in 10-byte packet"""
         packetstr = []
         while len(packetstr) != 10:
-            s = self.serial.read(1)
+            try:
+                s = self.serial.read(1)
+            except pyserial.SerialException:
+                self.output('Serial Connection Error') 
+                self.reconnectSerial()
+                break
             packetstr.append(s)
             if s == '':
                 break
