@@ -83,7 +83,7 @@ class Packet(object):
 
     def unpack(self, val):
         try:
-            return struct.unpack('d',val)
+            return struct.unpack('d',val)[0]
         except:
             raise PacketValueException(val)
 
