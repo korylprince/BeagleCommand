@@ -63,7 +63,7 @@ class Packet(object):
                 try:
                     self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
                 except KeyError:
-                    raise PacketCommandError(packetstr)
+                    raise PacketCommandException(packetstr)
             else:
                 raise PacketChecksumException(packetstr)
 
