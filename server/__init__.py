@@ -1,4 +1,4 @@
-import signal
+import signal, os
 from threading import Semaphore, Event
 import Queue
 from BeagleCommand import QuitinTime, Reboot, PowerOff
