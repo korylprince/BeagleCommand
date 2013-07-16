@@ -57,7 +57,7 @@ class Storage(Worker):
         m = Message(to=['serial'],msg=['send', ID, 'reply', [array.array('f',
             [self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]).tostring()]])
         self.MessageBox.put(m)
-        self.output(repr(str(self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs)))
+        self.output(repr(str([self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs])))
 
     def put(self, row):
         """insert data into database"""
