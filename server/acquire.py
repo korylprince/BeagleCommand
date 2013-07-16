@@ -44,9 +44,9 @@ class Acquire(Worker):
         finish = time.time()
         d = finish - start
         t = start + d/2
-        m = Message(to=['storage'],msg=['put', t, d,
+        m = Message(to=['storage'],msg=['put', [t, d,
             self.mapVoltage(sum(v)/100), self.mapUsedAmps(sum(ua)/100),
-            self.mapChargedAmps(sum(ca)/100)])
+            self.mapChargedAmps(sum(ca)/100)]])
         self.MessageBox.put(m)
 
     def mapVoltage(self,v):
