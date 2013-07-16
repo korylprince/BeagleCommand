@@ -2,7 +2,6 @@ import sqlite3
 import os
 import time
 from datetime import datetime
-import array
 import BeagleCommand
 from BeagleCommand import TimeUpdated, QuitinTime
 from BeagleCommand.util import Worker, Message
@@ -54,8 +53,8 @@ class Storage(Worker):
 
     def get(self, ID):
         """send serial the latest numbers"""
-        m = Message(to=['serial'],msg=['send', ID, 'reply', [array.array('f',
-            [self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]).tostring()]])
+        m = Message(to=['serial'],msg=['send', ID, 'reply', 
+            [self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]])
         self.MessageBox.put(m)
 
     def put(self, row):

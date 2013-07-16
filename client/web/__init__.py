@@ -7,7 +7,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    q = Queue.Queue()
+    d.serial.get(q)
+    d.serial.loop()
+    try:
+        vals = q.get(1)
+    except Queue.Empty:
+        return render_template('index.html')
+    return render_template('index.html',t=vals[0],v=vals[1],m=vals[2],c=vals[3],k=vals[4])
 
 @app.route('/get')
 def get():

@@ -1,7 +1,6 @@
 import os, time, datetime
 import random, string
 import select
-import array
 from BeagleCommand import Debug
 from BeagleCommand.util import Packet, PacketException
 from BeagleCommand import pyserial
@@ -36,6 +35,8 @@ class Serial(object):
             except PacketException as e:
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
+            except TypeError:
+                self.output('Wrong Number of arguments on Packet: ' + repr(str(p)))
     
     def output(self, msg):
         print '{0}: {1}'.format(self.__class__.__name__, msg)
@@ -72,11 +73,9 @@ class Serial(object):
         self.replyStore[ID] = replyQueue
         self.send(ID, 'get')
 
-    def reply(self, ID, bytestr):
+    def reply(self, ID, vals):
         """Send reply back to web server"""
-        vals = array.array('f')
-        vals.fromstring(bytestr)
-        self.replyStore[ID].put(vals.tolist())
+        self.replyStore[ID].put(vals)
 
     def time(self):
         """Get system time and send it to server"""
