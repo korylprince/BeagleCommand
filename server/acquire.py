@@ -1,6 +1,6 @@
 import time
 import Adafruit_BBIO.ADC as ADC
-from BeagleCommand import TimeUpdated
+from BeagleCommand import QuitinTime, TimeUpdated
 from BeagleCommand.util import Worker
 
 class Acquire(Worker):
