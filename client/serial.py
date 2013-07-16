@@ -73,7 +73,7 @@ class Serial(object):
         # wait a second so notimes don't build up
         time.sleep(1)
 
-    def notime(self):
+    def notime(self, *args):
         self.time()
 
     def reboot(self):
