@@ -15,7 +15,7 @@ def get():
     d.serial.get(q)
     d.serial.loop()
     try:
-        vals = q.get_nowait()
+        vals = q.get(1)
     except Queue.Empty:
         return jsonify()
     print jsonify(time=int(round(vals[0]*1000)),voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4]).get_data()

@@ -12,8 +12,12 @@
 </div>
 
 <script type="text/javascript">
-    var data = [[[1334856823000, 2], [1334856853000, 1], [1334856883000, 0], [1334856913000, 4], [1334856914000, 13], [1334856943000, 16], [1334856973000, 23], [1334857003000, 24], [1334857033000, 36], [1334857063000, 14], [1334857093000, 1]]];
-    var voltageChart = $.jqplot('voltage-chart', data, {
+    var voltageData = [[1373961600000,0]];
+    var motorData = [[1373961600000,0]];
+    var chargeData = [[1373961600000,0]];
+    var kilowattData = [[1373961600000,0]];
+
+    var voltageChart = $.jqplot('voltage-chart', [voltageData], {
         title: 'Voltage',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -35,7 +39,7 @@
             }
         }
     });
-    var motorChart = $.jqplot('motor-chart', data, {
+    var motorChart = $.jqplot('motor-chart', [motorData], {
         title: 'Motor Amps',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -57,7 +61,7 @@
             }
         }
     });
-    var chargeChart = $.jqplot('charge-chart', data, {
+    var chargeChart = $.jqplot('charge-chart', [chargeData], {
         title: 'Charge Amps',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -79,7 +83,7 @@
             }
         }
     });
-    var kilowattChart = $.jqplot('kilowatt-chart', data, {
+    var kilowattChart = $.jqplot('kilowatt-chart', [kilowattData], {
         title: 'kiloWatt Hours',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -101,5 +105,39 @@
             }
         }
     });
+
+function update() {
+    $.get('/get',
+        function(data) {   
+            voltageData.push([data.time,data.voltage]); 
+            motorData.push([data.time,data.motorAmps]); 
+            chargeData.push([data.time,data.chargeAmps]); 
+            kilowattData.push([data.time,data.kwhs]); 
+
+            //voltageData.splice(0,1);
+            //motorData.splice(0,1);
+            //chargeData.splice(0,1);
+            //kilowattData.splice(0,1);
+
+            voltageChart.series[0].data = voltageData;
+            motorChart.series[0].data = motorData;
+            chargeChart.series[0].data = chargeData;
+            kilowattChart.series[0].data = kilowattData;
+
+            voltageChart.resetAxesScale();
+            motorChart.resetAxesScale();
+            chargeChart.resetAxesScale();
+            kilowattChart.resetAxesScale();
+            
+            voltageChart.replot();
+            motorChart.replot();
+            chargeChart.replot();
+            kilowattChart.replot();
+        });
+    setTimeout(update,5000);
+}
+$(document).ready(function() {
+    setTimeout(update,5000);
+});
 </script>
 {% endblock %}

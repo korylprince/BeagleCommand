@@ -31,6 +31,9 @@ class Serial(Worker):
             except PacketException as e:
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
+            except TypeError:
+                self.output('Wrong Number of arguments on Packet: ' + repr(str(p)))
+
 
     def readline(self):
         packetstr = []
