@@ -1,4 +1,5 @@
 import os, time
+import datetime
 import select
 from BeagleCommand import TimeUpdated, QuitinTime, Reboot, PowerOff, Debug
 from BeagleCommand.util import Worker, Message, Packet, PacketException
