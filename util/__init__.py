@@ -4,6 +4,7 @@ import time
 import operator
 import sys
 import struct
+import select
 from BeagleCommand import OutputSemaphore, QuitinTime, Debug
 
 class Data(object):
