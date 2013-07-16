@@ -53,14 +53,6 @@ class Serial(Worker):
         self.MessageBox.put(m)
         self.rowdict.clear()
 
-    def send(self, command, val):
-        """Send serial packet. If time not set, send request."""
-        p = Packet(command, val)
-        if Debug:
-            self.output('Serial Out Packet: ' + repr(str(p)))
-        self.serial.write(str(p))
-        self.serial.flush()
-
     def reply(self, typestr, val):
         """Put value into current row"""
         self.rowdict[typestr] = val 

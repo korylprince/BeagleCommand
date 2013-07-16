@@ -186,3 +186,16 @@ class Worker(Thread):
                 if Debug:
                     self.output('{0}: {1}'.format(e.__class__.__name__, repr(e.errstr)))
 
+    def send(self, command, val):
+        """Send serial packet."""
+        p = Packet(command, val)
+        if Debug:
+            self.output('Serial Out Packet: ' + repr(str(p)))
+        try:
+            self.serial.write(str(p))
+        except pyserial.SerialException:
+                self.output('Serial Connection Error') 
+                self.reconnectSerial()
+                return
+        self.serial.flush()
+

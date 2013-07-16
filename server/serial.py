@@ -19,18 +19,11 @@ class Serial(Worker):
 
     def tearDown(self):
         self.serial.flush()
+        self.output('Closing Serial Port: ' + self.port)
         self.serial.close()
 
     def loop(self):
         self.readSerial()
-
-    def send(self, command, val):
-        """Send serial packet. If time not set, send request."""
-        p = Packet(command, val)
-        if Debug:
-            self.output('Serial Out Packet: ' + repr(str(p)))
-        self.serial.write(str(p))
-        self.serial.flush()
 
     def get(self, typestr, val):
         """Tell storage to send back latest values"""
