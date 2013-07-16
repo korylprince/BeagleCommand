@@ -19,6 +19,7 @@ class Storage(Worker):
 
         # initialize variables
         self.data = []
+        self.time
         self.voltage = 0.0
         self.usedAmps = 0.0
         self.chargedAmps = 0.0
@@ -54,7 +55,7 @@ class Storage(Worker):
     def get(self, ID):
         """send serial the latest numbers"""
         m = Message(to=['serial'],msg=['send', ID, 'reply', [array.array('f',
-            [self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]).tostring()]])
+            [self.time, self.voltage, self.usedAmps, self.chargedAmps, self.kwhs]).tostring()]])
         self.MessageBox.put(m)
 
     def put(self, row):
@@ -71,6 +72,6 @@ class Storage(Worker):
     def process(self, row):
         """add data to current totals"""
         self.data.append([row[0],row[1],row[2],row[3],row[4]])
-        self.voltage, self.usedAmps, self.chargedAmps = row[2],row[3],row[4]
+        self.time, self.voltage, self.usedAmps, self.chargedAmps = row[0], row[2], row[3], row[4]
         # v * (charged-used amps) * duration * hps / 1000 = kWh
         self.kwhs += row[2]*(row[4]-row[3])*row[1]*hps/1000
