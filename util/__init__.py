@@ -97,5 +97,5 @@ class Worker(Thread):
     def output(self,msg):
         """acquire lock on output screen and write to it"""
         OutputSemaphore.acquire()
-        print '{0}: {1}'.format(self.__class__.__name__, msg)
+        print '{0}: {1}'.format(self.__class__.__name__, repr(msg))
         OutputSemaphore.release()
