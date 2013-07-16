@@ -21,15 +21,15 @@ class PacketException(Exception):
     def __init__(self, errstr):
         self.errstr = errstr
 
-class PacketChecksumException(Exception):
+class PacketChecksumException(PacketException):
     """A packet with an invalid checksum has been received"""
     pass
 
-class PacketCommandException(Exception):
+class PacketCommandException(PacketException):
     """A packet with an invalid command has been received"""
     pass
 
-class PacketValueException(Exception):
+class PacketValueException(PacketException):
     """A packet with an invalid value has been received"""
     pass
 

@@ -34,7 +34,7 @@ class Serial(Worker):
                     exec('self.{0}(\'{1}\')'.format(p.command, p.val))
             except PacketException as e:
                 if Debug:
-                    self.output(repr(e))
+                    self.output('{0}: {1}'.format(e.__class__.__name__, repr(e.errstr)))
 
     def readline(self):
         """Read in 6-byte packet"""
