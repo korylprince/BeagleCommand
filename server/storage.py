@@ -53,7 +53,7 @@ class Storage(Worker):
 
     def get(self, typestr):
         """send serial the latest numbers"""
-        m = Message(to=['serial'],msg=['send', 'reply'+typestr, eval('self.'+typestr)])
+        m = Message(to=['serial'],msg=['send', 'reply-'+typestr, eval('self.'+typestr)])
         self.MessageBox.put(m)
         self.output('{0}: {1}'.format(typestr, eval('self.'+typestr)))
 
