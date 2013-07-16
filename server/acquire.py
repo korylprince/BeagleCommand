@@ -33,10 +33,10 @@ class Acquire(Worker):
 
     def loop(self):
         start = time.time()
+        v = list()
+        ua = list()
+        ca = list()
         for x in range(0,100):
-            v = list()
-            ua = list()
-            ca = list()
             v.append(ADC.read_raw('AIN1'))
             ua.append(ADC.read_raw('AIN2'))
             ca.append(ADC.read_raw('AIN3'))
