@@ -13,7 +13,8 @@ def index():
 def get():
     q = Queue.Queue()
     d.serial.get(q)
-    vals = q.get(timeout=1)
+    d.serial.loop()
+    vals = q.get_nowait()
     return jsonify(vals)
 
 @app.route('/command')

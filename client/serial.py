@@ -26,12 +26,12 @@ class Serial(object):
         self.serial.close()
 
     def loop(self):
-        if select.select([self.serial],[],[],0.1)[0]:
+        if select.select([self.serial],[],[],1)[0]:
             try:
                 p = Packet(packetstr=self.serial.readline())
                 if Debug:
                     self.output('Got Packet ID: {0}, Command: {1}, Arguments: {2}'.format(p.ID, p.command, str(p.args)))
-                    exec('self.{0}({1},*{2})'.format(p.command, p.ID, p.args))
+                    exec('self.{0}("{1}",*{2})'.format(p.command, p.ID, p.args))
             except PacketException as e:
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
