@@ -18,7 +18,7 @@ def get():
         vals = q.get_nowait()
     except Queue.Empty:
         return jsonify()
-    print jsonify(time=int(round(vals[0]*1000)),voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4])
+    print jsonify(time=int(round(vals[0]*1000)),voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4]).get_data()
     return jsonify(time=int(round(vals[0]*1000)),
             voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4])
 

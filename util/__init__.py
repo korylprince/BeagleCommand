@@ -18,7 +18,7 @@ class Message(object):
 class PacketException(Exception):
     """A packet with an invalid checksum has been received"""
     def __init__(self,packetstr):
-        self.packetstr = packetstr
+        self.packetstr = repr(packetstr)
 
 class Packet(object):
     """Simple object to wrap serial packets and verify them"""
@@ -44,7 +44,7 @@ class Packet(object):
     #http://code.activestate.com/recipes/52251/
     def checksumgen(self,s):
         """A simple packet checksum"""
-        return '{0}^{1}\n'.format(s,reduce(operator.add, map(ord, s)) % 256)
+        return '{0}^{1}\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
 
     def checksum(self,s):
         try:
