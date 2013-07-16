@@ -29,7 +29,7 @@ class Packet(object):
             self.args = args
         else:
             if self.checksum(packetstr):
-                self.ID, cmd, chksum = packetstr.split('^')
+                self.ID, cmd, chksum = packetstr.split('\xff\xfe')
                 self.command = cmd.split(',')[0].strip()
                 self.args = [x.strip() for x in cmd.split(',')[1:]]
             else:
@@ -37,18 +37,18 @@ class Packet(object):
 
     def __str__(self):
         if self.args is None:
-            return self.checksumgen('{0}^{1}'.format(self.ID,self.command,))
+            return self.checksumgen('{0}\xff\xfe{1}'.format(self.ID,self.command,))
         else:
-            return self.checksumgen('{0}^{1},{2}'.format(self.ID,self.command,','.join(self.args)))
+            return self.checksumgen('{0}\xff\xfe{1},{2}'.format(self.ID,self.command,','.join(self.args)))
 
     #http://code.activestate.com/recipes/52251/
     def checksumgen(self,s):
         """A simple packet checksum"""
-        return '{0}^{1}\xff\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
+        return '{0}\xff\xfe{1}\xff\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
 
     def checksum(self,s):
         try:
-            return s == self.checksumgen('^'.join(s.split('^')[0:2]))
+            return s == self.checksumgen('\xff\xfe'.join(s.split('\xff\xfe')[0:2]))
         except:
             return False
 
