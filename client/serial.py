@@ -3,23 +3,23 @@ import random, string
 import select
 import array
 from BeagleCommand import Debug
-from BeagleCommand.util import Worker
-from BeagleCommand.util import Message, Packet, PacketException
+from BeagleCommand.util import Packet, PacketException
 from BeagleCommand import pyserial
 
 IDSample = string.letters + string.digits
 
-class Serial(Worker):
+class Serial(object):
 
-    def __init__(self, InQueue, MessageBox):
-        super(Serial,self).__init__(InQueue,MessageBox)
+    def __init__(self):
         self.port = "/dev/ttyUSB0"
         self.replyStore = dict()
+        self.buildUp()
 
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
         self.serial.nonblocking()
+        self.time()
 
     def tearDown(self):
         self.serial.flush()
@@ -35,6 +35,9 @@ class Serial(Worker):
             except PacketException as e:
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
+    
+    def output(self, msg):
+        print '{0}: {1}'.format(self.__class__.__name__, msg)
 
     def IDgen(self):
         return random.choice(IDSample) + random.choice(IDSample)
