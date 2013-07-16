@@ -22,20 +22,7 @@ class Serial(Worker):
         self.serial.close()
 
     def loop(self):
-        if select.select([self.serial],[],[],0.5)[0]:
-            try:
-                packetstr = self.readline()
-                p = Packet(packetstr=packetstr)
-                if Debug:
-                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, str(p.val)))
-                if '-' in p.command:
-                    command, typestr = p.command.split('-')
-                    exec('self.{0}(\'{1}\',\'{2}\')'.format(command, typestr, p.val))
-                else:
-                    exec('self.{0}(\'{1}\')'.format(p.command, p.val))
-            except PacketException as e:
-                if Debug:
-                    self.output('{0}: {1}'.format(e.__class__.__name__, repr(e.errstr)))
+        self.readSerial()
 
     def send(self, command, val):
         """Send serial packet. If time not set, send request."""

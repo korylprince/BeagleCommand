@@ -66,6 +66,7 @@ class Packet(object):
             if len(packetstr) != 10:
                 raise PacketLengthException
             if self.checksum(packetstr):
+                print repr(packetstr)
                 try:
                     self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
                 except KeyError:
@@ -153,3 +154,20 @@ class Worker(Thread):
             if s == '':
                 break
         return ''.join(packetstr)
+
+    def readSerial(self):
+        if select.select([self.serial],[],[],0.5)[0]:
+            try:
+                packetstr = self.readline()
+                p = Packet(packetstr=packetstr)
+                if Debug:
+                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, repr(p.val)))
+                if '-' in p.command:
+                    command, typestr = p.command.split('-')
+                    exec('self.{0}(\'{1}\',\'{2}\')'.format(command, typestr, p.val))
+                else:
+                    exec('self.{0}(\'{1}\')'.format(p.command, p.val))
+            except PacketException as e:
+                if Debug:
+                    self.output('{0}: {1}'.format(e.__class__.__name__, repr(e.errstr)))
+
