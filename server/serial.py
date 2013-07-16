@@ -14,7 +14,7 @@ class Serial(Worker):
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 19200)
-        self.serial.timeout = 0.1
+        self.serial.timeout = 0.5
         self.output('Waiting for time...')
 
     def tearDown(self):
@@ -22,7 +22,7 @@ class Serial(Worker):
         self.serial.close()
 
     def loop(self):
-        if select.select([self.serial],[],[],0.2)[0]:
+        if select.select([self.serial],[],[],0.5)[0]:
             try:
                 packetstr = self.readline()
                 p = Packet(packetstr=packetstr)
@@ -36,18 +36,6 @@ class Serial(Worker):
             except PacketException as e:
                 if Debug:
                     self.output('{0}: {1}'.format(e.__class__.__name__, repr(e.errstr)))
-
-    def readline(self):
-        """Read in 6-byte packet"""
-        packetstr = []
-        while len(packetstr) != 6:
-            s = self.serial.read(1)
-            packetstr.append(s)
-            if s == '':
-                if Debug:
-                    self.output('Received Packet of invalid length: ' + repr(''.join(packetstr)))
-                return
-        return ''.join(packetstr)
 
     def send(self, command, val):
         """Send serial packet. If time not set, send request."""

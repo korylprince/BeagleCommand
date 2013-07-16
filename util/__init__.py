@@ -25,6 +25,10 @@ class PacketChecksumException(PacketException):
     """A packet with an invalid checksum has been received"""
     pass
 
+class PacketLengthException(PacketException):
+    """A packet with an invalid length has been received"""
+    pass
+
 class PacketCommandException(PacketException):
     """A packet with an invalid command has been received"""
     pass
@@ -59,6 +63,8 @@ class Packet(object):
             self.command = command
             self.val = val
         else:
+            if len(packetstr != 10):
+                raise PacketLengthException
             if self.checksum(packetstr):
                 try:
                     self.command, self.val = self.commands[packetstr[0]], self.unpack(packetstr[1:-1])
@@ -71,11 +77,11 @@ class Packet(object):
         return self.checksumgen(self.codes[self.command]+self.pack(self.val))
 
     def pack(self,val):
-        return struct.pack('f',val)
+        return struct.pack('d',val)
 
     def unpack(self, val):
         try:
-            struct.unpack('f',val)
+            struct.unpack('d',val)
         except:
             raise PacketValueException(val)
 
@@ -137,3 +143,13 @@ class Worker(Thread):
         OutputSemaphore.acquire()
         print '{0}: {1}'.format(self.__class__.__name__, msg)
         OutputSemaphore.release()
+
+    def readline(self):
+        """Read in 10-byte packet"""
+        packetstr = []
+        while len(packetstr) != 10:
+            s = self.serial.read(1)
+            packetstr.append(s)
+            if s == '':
+                break
+        return ''.join(packetstr)
