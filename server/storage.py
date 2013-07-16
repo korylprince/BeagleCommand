@@ -19,7 +19,7 @@ class Storage(Worker):
 
         # initialize variables
         self.data = []
-        self.time
+        self.time = time.time()
         self.voltage = 0.0
         self.usedAmps = 0.0
         self.chargedAmps = 0.0
