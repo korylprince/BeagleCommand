@@ -3,6 +3,7 @@ import Queue
 import time
 import operator
 import sys
+import struct
 from BeagleCommand import OutputSemaphore, QuitinTime, Debug
 
 class Data(object):
@@ -16,39 +17,76 @@ class Message(object):
         self.msg = msg
 
 class PacketException(Exception):
+    """A general packet error"""
+    def __init__(self, errstr):
+        self.errstr = errstr
+
+class PacketChecksumException(Exception):
     """A packet with an invalid checksum has been received"""
-    def __init__(self,packetstr):
-        self.packetstr = repr(packetstr)
+    pass
+
+class PacketCommandException(Exception):
+    """A packet with an invalid command has been received"""
+    pass
+
+class PacketValueException(Exception):
+    """A packet with an invalid value has been received"""
+    pass
 
 class Packet(object):
     """Simple object to wrap serial packets and verify them"""
-    def __init__(self, ID=None, command=None, args=None, packetstr=None):
-        if ID:
-            self.ID = ID
+
+    commands = {'\x00': 'time',
+                '\x01': 'notime',
+                '\x02': 'reboot',
+                '\x03': 'poweroff'
+                '\x04': 'get-time',
+                '\x05': 'get-voltage',
+                '\x06': 'get-usedAmps',
+                '\x07': 'get-chargedAmps',
+                '\x08': 'get-kwhs',
+                '\x09': 'reply-time',
+                '\x0a': 'reply-voltage',
+                '\x0b': 'reply-usedAmps',
+                '\x0c': 'reply-chargedAmps',
+                '\x0d': 'reply-kwhs',
+               }
+
+    codes = {v:k for k,v in self.commands.iteritems()}
+
+    def __init__(self, command=None, val=None, packetstr=None):
+        if command:
             self.command = command
-            self.args = args
+            self.val = val
         else:
             if self.checksum(packetstr):
-                self.ID, cmd, chksum = packetstr.split('\xff\xfe')
-                self.command = cmd.split(',')[0].strip()
-                self.args = [x.strip() for x in cmd.split(',')[1:]]
+                try:
+                    self.command, self.val = commands[packetstr[0]], self.unpack(packetstr[1:-1])
+                except KeyError:
+                    raise PacketCommandError(packetstr)
             else:
-                raise PacketException(packetstr)
+                raise PacketChecksumException(packetstr)
 
     def __str__(self):
-        if self.args is None:
-            return self.checksumgen('{0}\xff\xfe{1}'.format(self.ID,self.command,))
-        else:
-            return self.checksumgen('{0}\xff\xfe{1},{2}'.format(self.ID,self.command,','.join(self.args)))
+        return self.checksumgen(codes[self.command]+self.pack(self.val))
+
+    def pack(self,val):
+        return struct.pack('f',val)
+
+    def unpack(self, val):
+        try:
+            struct.unpack('f',val)
+        except:
+            raise PacketValueException(val)
 
     #http://code.activestate.com/recipes/52251/
     def checksumgen(self,s):
         """A simple packet checksum"""
-        return '{0}\xff\xfe{1}\xff\xff'.format(s,reduce(operator.add, map(ord, s)) % 256)
+        return s + chr(reduce(operator.add, map(ord, s)) % 256)
 
     def checksum(self,s):
         try:
-            return s == self.checksumgen('\xff\xfe'.join(s.split('\xff\xfe')[0:2]))
+            return s == self.checksumgen(s[:-1])
         except:
             return False
 

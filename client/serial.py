@@ -1,98 +1,107 @@
-import os, time, datetime
-import random, string
-import array
+import os, time
 import select
-from BeagleCommand import Debug
-from BeagleCommand.util import Packet, PacketException
+from BeagleCommand import QuitinTime, Debug
+from BeagleCommand.util import Worker, Message, Packet, PacketException
 from BeagleCommand import pyserial
 
-IDSample = string.letters + string.digits
+class Serial(Worker):
 
-class Serial(object):
-
-    def __init__(self):
+    def __init__(self, InQueue, MessageBox):
+        super(Serial,self).__init__(InQueue,MessageBox)
         self.port = "/dev/ttyUSB0"
-        self.replyStore = dict()
-        self.buildUp()
+        
+        # compile values into dict
+        self.rowdict = dict()
 
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
-        self.serial.timeout = 0.1
-        self.time()
+        self.serial.timeout = 0.01
+        self.time(0.0)
 
     def tearDown(self):
         self.serial.flush()
         self.serial.close()
 
+    def run(self):
+        """main worker loop"""
+        self.output('started')
+        self.buildUp()
+        while True:
+            self.loop()
+
+            # Check if main thread is ready to stop
+            if QuitinTime.wait(5):
+                self.tearDown()
+                self.output('Quitin\'')
+                return
+
     def loop(self):
-        if select.select([self.serial],[],[],1)[0]:
+        for col in ['time', 'voltage', 'usedAmps', 'chargedAmps', 'kwhs']:
+            while True:
+                self.send('get-'+col,0.0)
+                self.get()
+                if col in self.rowdict:
+                    break
+            time.sleep(0.1)
+        r = self.rowdict
+        m = Message(to = ['storage'], msg = ['put', [r['time'], r['voltage'],
+            r['usedAmps'], r['chargedAmps'], r['kwhs']]])
+        self.MessageBox.put(m)
+        self.rowdict.clear()
+
+    def get(self):
+        if select.select([self.serial],[],[],0.1)[0]:
             try:
                 packetstr = self.readline()
                 p = Packet(packetstr=packetstr)
                 if Debug:
-                    self.output('Got Packet ID: {0}, Command: {1}, Arguments: {2}'.format(p.ID, p.command, str(p.args)))
-                    exec('self.{0}("{1}",*{2})'.format(p.command, p.ID, p.args))
+                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, str(p.val))
+                if '-' in p.command:
+                    command, typestr = p.command.split('-')
+                    exec('self.{0}(\'{1}\',\'{2}\')'.format(command, typestr, p.val))
+                else:
+                    exec('self.{0}(\'{1}\')'.format(p.command, p.val))
             except PacketException as e:
                 if Debug:
-                    self.output('Invalid Checksum on Packet: ' + e.packetstr)
-            except TypeError:
-                self.output('Wrong Number of arguments on Packet: ' + repr(str(p)))
-    
-    def output(self, msg):
-        print '{0}: {1}'.format(self.__class__.__name__, msg)
-
-    def IDgen(self):
-        return random.choice(IDSample) + random.choice(IDSample)
+                    self.output(repr(e))
 
     def readline(self):
+        """Read in 6-byte packet"""
         packetstr = []
-        while True:
+        while len(packetstr) != 6:
             s = self.serial.read(1)
             packetstr.append(s)
             if s == '':
-                break
-            elif s == '\xff' and packetstr[-2] == '\xff':
-                break
+                if Debug:
+                    self.output('Received Packet of invalid length: ' + repr(''.join(packetstr)))
+                return
         return ''.join(packetstr)
 
-    def send(self, ID, command, *args):
-        """Send serial packet. If time to set, send request."""
-        try:
-            p = Packet(ID, command, *args)
-            if Debug:
-                self.output('Serial Out Packet: '+repr(str(p)))
-            self.serial.write(str(p))
-            self.serial.flush()
-        except PacketException as e:
-            if Debug:
-                self.output('Invalid Checksum on Created Packet: ' + e.packetstr)
+    def send(self, command, val):
+        """Send serial packet. If time not set, send request."""
+        p = Packet(command, val)
+        if Debug:
+            self.output('Serial Out Packet: ' + repr(str(p)))
+        self.serial.write(str(p))
+        self.serial.flush()
 
-    def get(self, replyQueue):
-        """Tell server to send back latest values"""
-        ID = self.IDgen()
-        self.replyStore[ID] = replyQueue
-        self.send(ID, 'get')
+    def reply(self, typestr, val):
+        """Put value into current row"""
+       self.rowdict[typestr] = val 
 
-    def reply(self, ID, bytestr):
-        """Send reply back to web server"""
-        vals = array.array('f')
-        vals.fromstring(bytestr)
-        print vals.tolist()
-        self.replyStore[ID].put(vals.tolist())
-
-    def time(self):
+    def time(self, val):
         """Get system time and send it to server"""
-        datestr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.send('00', 'time', [datestr])
-        # wait a second so notimes don't build up
-        time.sleep(1)
+        t = time.time()
+        self.output('Sending Time: ' + str(t))
+        self.send('time',t)
 
-    def notime(self, *args):
-        self.time()
+    def notime(self, val):
+        """Resend time"""
+        self.time(val)
 
-    def reboot(self):
-        self.send('00', 'reboot')
+    def reboot(self, val):
+        self.send('reboot', 0.0)
 
-    def poweroff(self):
-        self.send('00', 'poweroff')
+    def poweroff(self, val):
+        self.send('poweroff', 0.0)

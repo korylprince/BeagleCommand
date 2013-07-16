@@ -13,7 +13,7 @@ class Serial(Worker):
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
-        self.serial.timeout = 0.1
+        self.serial.timeout = 0.01
         self.output('Waiting for time...')
 
     def tearDown(self):
@@ -26,59 +26,58 @@ class Serial(Worker):
                 packetstr = self.readline()
                 p = Packet(packetstr=packetstr)
                 if Debug:
-                    self.output('Got Packet ID: {0}, Command: {1}, Arguments: {2}'.format(p.ID, p.command, str(p.args)))
-                    exec('self.{0}("{1}",*{2})'.format(p.command, p.ID, p.args))
+                    self.output('Got Packet: Command: {0}, Value: {1}'.format(p.command, str(p.val))
+                if '-' in p.command:
+                    command, typestr = p.command.split('-')
+                    exec('self.{0}(\'{1}\',\'{2}\')'.format(command, typestr, p.val))
+                else:
+                    exec('self.{0}(\'{1}\')'.format(p.command, p.val))
             except PacketException as e:
                 if Debug:
-                    self.output('Invalid Checksum on Packet: ' + e.packetstr)
-            except TypeError:
-                self.output('Wrong Number of arguments on Packet: ' + repr(str(p)))
-
+                    self.output(repr(e))
 
     def readline(self):
+        """Read in 6-byte packet"""
         packetstr = []
-        while True:
+        while len(packetstr) != 6:
             s = self.serial.read(1)
             packetstr.append(s)
             if s == '':
-                break
-            elif s == '\xff' and packetstr[-2] == '\xff':
-                break
+                if Debug:
+                    self.output('Received Packet of invalid length: ' + repr(''.join(packetstr)))
+                return
         return ''.join(packetstr)
 
-    def send(self, ID, command, *args):
-        """Send serial packet. If time to set, send request."""
-        try:
-            p = Packet(ID, command, *args)
-            if Debug:
-                self.output('Serial Out Packet: '+repr(str(p)))
-            self.serial.write(str(p))
-            self.serial.flush()
-        except PacketException as e:
-            if Debug:
-                self.output('Invalid Checksum on Created Packet: ' + e.packetstr)
+    def send(self, command, val):
+        """Send serial packet. If time not set, send request."""
+        p = Packet(command, val)
+        if Debug:
+            self.output('Serial Out Packet: ' + repr(str(p)))
+        self.serial.write(str(p))
+        self.serial.flush()
 
-    def get(self, ID):
+    def get(self, typestr, val):
         """Tell storage to send back latest values"""
         if not TimeUpdated.is_set():
-            self.send(ID, 'notime')
+            self.send('notime', 0.0)
             return
-        m = Message(to=['storage'],msg=['get', ID])
+        m = Message(to=['storage'],msg=['get', typestr])
         self.MessageBox.put(m)
 
-    def time(self, ID, timestr):
+    def time(self, val):
         """Set system time"""
+        d = datetime.datetime.fromtimestamp(val)
+        timestr = d.strftime('%Y-%m-%d %H:%M:%S')
         self.output('Got Time. Setting to ' + timestr)
         if os.system('timedatectl set-time "' + timestr + '"') == 0:
             TimeUpdated.set()
         else:
             self.output('Time update failed')
 
-    def reboot(self, ID):
+    def reboot(self, val):
         QuitinTime.set()
         Reboot.set()
 
-    def poweroff(self, ID):
+    def poweroff(self, val):
         QuitinTime.set()
         PowerOff.set()
-
