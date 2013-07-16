@@ -2,10 +2,10 @@ import sqlite3
 import os
 import time
 from datetime import datetime
+import array
 import BeagleCommand
-from BeagleCommand.server import TimeUpdated, QuitinTime
-from worker import Worker
-from BeagleCommand.util import Message
+from BeagleCommand import TimeUpdated, QuitinTime
+from BeagleCommand.util import Worker, Message
 
 # hours per second
 hps = 1.0/(60*60)
@@ -13,7 +13,7 @@ hps = 1.0/(60*60)
 class Storage(Worker):
     """class that handles saving data and data statistics"""
 
-    def __init__(self,InQueue,MessageBox):
+    def __init__(self, InQueue, MessageBox):
         super(Storage,self).__init__(InQueue,MessageBox)
         self.messageBound = True
 
@@ -51,18 +51,24 @@ class Storage(Worker):
         self.conn.commit()
         self.conn.close()
 
-    def get(self,ID):
+    def get(self, ID):
         """send serial the latest numbers"""
-        m = Message(to=['serial'],msg=['send',ID,self.voltage,self.usedAmps,self.chargedAmps,self.kwhs])
+        m = Message(to=['serial'],msg=['send', ID, 'reply', array.array('f',
+            [self.voltage, self.usedAmps, self.chargedAmps, self.kwhs].tostring())])
         self.MessageBox.put(m)
 
-    def put(self,row):
+    def put(self, row):
         """insert data into database"""
         self.cursor.execute('insert into data (timestamp, duration, voltage, used, charged) values (?, ?, ?, ?, ?);',
                 (row[0],row[1],row[2],row[3],row[4]))
         self.process(row)
 
-    def process(self,row):
+        # commit to db every 10 seconds
+        if time.time() - self.lastcommit > 10:
+            self.conn.commit()
+            self.lastcommit = time.time()
+
+    def process(self, row):
         """add data to current totals"""
         self.data.append([row[0],row[1],row[2],row[3],row[4]])
         self.voltage, self.usedAmps, self.chargedAmps = row[2],row[3],row[4]

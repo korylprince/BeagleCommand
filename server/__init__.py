@@ -1,18 +1,7 @@
 import signal
-from threading import Thread, Semaphore, Event
+from threading import Semaphore, Event
 import Queue
-
-# show extra debug messages
-Debug = True
-
-# create semaphore so only one thread can output at a time
-OutputSemaphore = Semaphore()
-
-# create event to signal threads to stop
-QuitinTime = Event()
-
-# create event for time update
-TimeUpdated = Event()
+from BeagleCommand import QuitinTime, Reboot, PowerOff
 
 # create message passing queues
 AcquireIn = Queue.Queue()
@@ -58,6 +47,11 @@ def run():
                 QueueOwners[owner].put(msg.msg)
         except Queue.Empty:
             pass
+
+    if Reboot.is_set():
+        os.system('reboot')
+    if PowerOff.is_set():
+        os.system('poweroff')
 
 if __name__ == '__main__':
     run()

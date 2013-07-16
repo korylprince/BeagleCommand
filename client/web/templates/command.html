@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block nav %}
+<li><a href="/">Main</a></li>
+<li class="active"><a>Commands</a></li>
+{% endblock %}
+{% block page %}
+<br />
+<div id="buttons" class="span12">
+    <button id="rebootbtn" class="btn btn-danger" data-toggle="modal" data-target="#reboot-modal">Reboot</button>
+    <button id="poweroffbtn" class="btn btn-danger" data-toggle="modal" data-target="#poweroff-modal">Power Off</button>
+</div>
+
+<div id="reboot-modal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Are you sure you want to Reboot?</h3>
+    </div>
+    <div class="modal-body">
+        <p>Doing so will cause the BeagleBone Black to stop collecting data for a while until it comes back up.</p>
+    </div>
+    <div class="modal-footer">
+        <a id="reboot-yes" href="#" class="btn">Yes</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">No</a>
+    </div>
+</div>
+
+<div id="poweroff-modal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Are you sure you want to Shutdown?</h3>
+    </div>
+    <div class="modal-body">
+        <p>Doing so will cause the BeagleBone Black to stop collecting data until it is manually turned back on.</p>
+    </div>
+    <div class="modal-footer">
+        <a id="poweroff-yes" href="#" class="btn">Yes</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">No</a>
+    </div>
+</div>
+
+<div id="alert" class="alert alert-info hide fade in span4">
+    <a class="close" data-dismiss="alert" href="#">&times;</a>
+    <p id="alerttext"></p>
+</div>
+
+{% endblock %}

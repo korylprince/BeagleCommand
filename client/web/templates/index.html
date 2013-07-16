@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block nav %}
+<li class="active"><a>Main</a></li>
+<li><a href="/command">Commands</a></li>
+{% endblock %}
+{% block page %}
+<div id="charts">
+<div id="voltage-chart" class="chart"></div>
+<div id="motor-chart" class="chart"></div>
+<div id="charge-chart" class="chart"></div>
+<div id="kilowatt-chart" class="chart"></div>
+</div>
+
+<script type="text/javascript">
+    var data = [[[1334856823000, 2], [1334856853000, 1], [1334856883000, 0], [1334856913000, 4], [1334856914000, 13], [1334856943000, 16], [1334856973000, 23], [1334857003000, 24], [1334857033000, 36], [1334857063000, 14], [1334857093000, 1]]];
+    var voltageChart = $.jqplot('voltage-chart', data, {
+        title: 'Voltage',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%#H:%M'
+                }
+            },
+            yaxis:{
+                label:'Volts'
+            }
+        }
+    });
+    var motorChart = $.jqplot('motor-chart', data, {
+        title: 'Motor Amps',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%#H:%M'
+                }
+            },
+            yaxis:{
+                label:'Amps'
+            }
+        }
+    });
+    var chargeChart = $.jqplot('charge-chart', data, {
+        title: 'Charge Amps',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%#H:%M'
+                }
+            },
+            yaxis:{
+                label:'Amps'
+            }
+        }
+    });
+    var kilowattChart = $.jqplot('kilowatt-chart', data, {
+        title: 'kiloWatt Hours',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%#H:%M'
+                }
+            },
+            yaxis:{
+                label:'kiloWatt Hours'
+            }
+        }
+    });
+</script>
+{% endblock %}

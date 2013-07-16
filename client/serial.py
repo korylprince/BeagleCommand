@@ -1,20 +1,25 @@
-import os, time
+import os, time, datetime
+import random, string
 import select
-from BeagleCommand import TimeUpdated, Reboot, PowerOff, Debug
-from BeagleCommand.util import Worker, Message, Packet, PacketException
+import array
+from BeagleCommand import Debug
+from BeagleCommand.util import Worker
+from BeagleCommand.util import Message, Packet, PacketException
 from BeagleCommand import pyserial
+
+IDSample = string.letters + string.digits
 
 class Serial(Worker):
 
     def __init__(self, InQueue, MessageBox):
         super(Serial,self).__init__(InQueue,MessageBox)
-        self.port = "/dev/ttyO2"
+        self.port = "/dev/ttyUSB0"
+        self.replyStore = dict()
 
     def buildUp(self):
         self.output('Opening Serial Port: ' + self.port)
         self.serial = pyserial.Serial(self.port, 115200)
         self.serial.nonblocking()
-        self.output('Waiting for time...')
 
     def tearDown(self):
         self.serial.flush()
@@ -31,13 +36,13 @@ class Serial(Worker):
                 if Debug:
                     self.output('Invalid Checksum on Packet: ' + e.packetstr)
 
+    def IDgen(self):
+        return random.choice(IDSample) + random.choice(IDSample)
+
     def send(self, ID, command, *args):
         """Send serial packet. If time to set, send request."""
         try:
-            if not TimeUpdated.is_set():
-                p = Packet(ID, 'notime')
-            else:
-                p = Packet(ID, command, *args)
+            p = Packet(ID, command, *args)
             if Debug:
                 self.output('Serial Out Packet: '+str(p))
             self.serial.write(str(p))
@@ -46,24 +51,30 @@ class Serial(Worker):
             if Debug:
                 self.output('Invalid Checksum on Created Packet: ' + e.packetstr)
 
-    def get(self, ID):
-        """Tell storage to send back latest values"""
-        m = Message(to=['storage'],msg=['get', ID])
-        self.MessageBox.put(m)
+    def get(self, replyQueue):
+        """Tell server to send back latest values"""
+        ID = self.IDgen()
+        self.replyStore[ID] = replyQueue
+        self.send(ID, 'get')
 
-    def time(self, ID, timestr):
-        """Set system time"""
-        self.output('Got Time. Setting to ' + timestr)
-        if os.system('timedatectl set-time "' + timestr + '"') == 0:
-            TimeUpdated.set()
-        else:
-            self.output('Time update failed')
+    def reply(self, ID, bytestr):
+        """Send reply back to web server"""
+        vals = array.array()
+        vals.fromstring(bytestr)
+        self.replyStore[ID].put(vals.tolist())
 
-    def reboot(self, ID):
-        QuitinTime.set()
-        Reboot.set()
+    def time(self):
+        """Get system time and send it to server"""
+        datestr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.send('00', 'time', [datestr])
+        # wait a second so notimes don't build up
+        time.sleep(1)
 
-    def poweroff(self, ID):
-        QuitinTime.set()
-        PowerOff.set()
+    def notime(self):
+        self.time()
 
+    def reboot(self):
+        self.send('00', 'reboot')
+
+    def poweroff(self):
+        self.send('00', 'poweroff')

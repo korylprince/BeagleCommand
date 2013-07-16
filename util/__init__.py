@@ -1,4 +1,9 @@
+from threading import Thread
+import Queue
+import time
 import operator
+import sys
+from BeagleCommand import OutputSemaphore, QuitinTime, Debug
 
 class Message(object):
     """Simple object to wrap interthread communication"""
@@ -27,7 +32,10 @@ class Packet(object):
                 raise PacketException(packetstr)
 
     def __str__(self):
-        return self.checksumgen('{0}\0{1},{2}'.format(self.ID,self.command,','.join(self.args)))
+        if self.args is None:
+            return self.checksumgen('{0}\0{1}'.format(self.ID,self.command,))
+        else:
+            return self.checksumgen('{0}\0{1},{2}'.format(self.ID,self.command,','.join(self.args)))
 
     #http://code.activestate.com/recipes/52251/
     def checksumgen(self,s):
@@ -39,3 +47,51 @@ class Packet(object):
             return s == self.checksumgen('\0'.join(s.split('\0')[0:2]))
         except:
             return False
+
+class Worker(Thread):
+
+    def __init__(self,InQueue,MessageBox):
+        super(Worker, self).__init__()
+        self.InQueue = InQueue
+        self.MessageBox = MessageBox
+        self.messageBound = False
+
+    def run(self):
+        """main worker loop"""
+        self.output('started')
+        self.buildUp()
+        while True:
+            # Check if main thread is ready to stop
+            if QuitinTime.is_set():
+                self.tearDown()
+                self.output('Quitin\'')
+                return
+            # check for messages
+            while True:
+                try: 
+                    msg = self.InQueue.get(block=self.messageBound,timeout=0.5)
+                    if Debug:
+                        self.output('received ' + str(msg))
+                    exec('self.{0}(*{1})'.format(msg[0],msg[1:]))
+                except Queue.Empty:
+                    break
+            if not self.messageBound:
+                self.loop()
+
+    def buildUp(self):
+        """executed when worker first starts"""
+        pass
+
+    def tearDown(self):
+        """executed right before worker quits"""
+        pass
+
+    def loop(self):
+        """loop executed when not message bound"""
+        time.sleep(0.1)
+
+    def output(self,msg):
+        """acquire lock on output screen and write to it"""
+        OutputSemaphore.acquire()
+        print '{0}: {1}'.format(self.__class__.__name__, msg)
+        OutputSemaphore.release()
