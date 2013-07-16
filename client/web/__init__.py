@@ -1,33 +1,16 @@
 from flask import Flask
 from flask import render_template, jsonify, request
-import Queue
-from BeagleCommand.client import d
+from BeagleCommand.util import Message
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    q = Queue.Queue()
-    d.serial.get(q)
-    d.serial.loop()
-    try:
-        vals = q.get(1)
-    except Queue.Empty:
-        return render_template('index.html')
-    return render_template('index.html',t=vals[0],v=vals[1],m=vals[2],c=vals[3],k=vals[4])
+    return render_template('index.html')
 
 @app.route('/get')
 def get():
-    q = Queue.Queue()
-    d.serial.get(q)
-    d.serial.loop()
-    try:
-        vals = q.get(1)
-    except Queue.Empty:
-        return jsonify()
-    print jsonify(time=int(round(vals[0]*1000)),voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4]).get_data()
-    return jsonify(time=int(round(vals[0]*1000)),
-            voltage=vals[1], motorAmps=vals[2], chargeAmps=vals[3], kwhs=vals[4])
+    return jsonify()
 
 @app.route('/command')
 def command():
@@ -35,5 +18,6 @@ def command():
 
 @app.route('/command', methods=['POST'])
 def commandPost():
-    exec('d.serial.{0}()'.format(request.form['command']))
+    m = Message(to=['serial'], msg=[request.form['command'],[0.0]])
+    app.MessageBox.put(m)
     return jsonify(status=request.form['command'])

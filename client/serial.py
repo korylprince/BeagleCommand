@@ -1,4 +1,5 @@
 import os, time
+import Queue
 from BeagleCommand import QuitinTime, Debug
 from BeagleCommand.util import Worker, Message, Packet, PacketException
 from BeagleCommand import pyserial
@@ -28,6 +29,15 @@ class Serial(Worker):
         self.output('started')
         self.buildUp()
         while True:
+            # check for messages
+            try: 
+                msg = self.InQueue.get_nowait()
+                if Debug:
+                    self.output('received ' + str(msg))
+                exec('self.{0}(*{1})'.format(msg[0],msg[1:]))
+            except Queue.Empty:
+                pass
+
             self.loop()
 
             # Check if main thread is ready to stop

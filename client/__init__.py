@@ -1,11 +1,12 @@
 import signal, os
-import Queue
+from Queue import Empty
+from multiprocessing import Process, Queue
 from BeagleCommand import QuitinTime
 
 # create message passing queues
-SerialIn = Queue.Queue()
-StorageIn = Queue.Queue()
-MessageBox = Queue.Queue()
+SerialIn = Queue()
+StorageIn = Queue()
+MessageBox = Queue()
 
 QueueOwners = {'serial':SerialIn,'storage':StorageIn}
 
@@ -19,6 +20,8 @@ def run():
     # create signal handler
     def signal_handler(sig, frame):
         print '\nCaught signal {0}... Quitin\' Time!'.format(str(sig))
+        flaskProcess.terminate()
+        flaskProcess.join()
         QuitinTime.set()
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -30,6 +33,18 @@ def run():
     StorageThread.start()
     SerialThread.start()
 
+    # start web server
+    def f(MessageBox):
+        from web import app
+        app.MessageBox = MessageBox
+        try:
+            app.run(debug=True, use_reloader=False)
+        except AttributeError:
+            pass
+
+    flaskProcess = Process(target=f, args=[MessageBox]) 
+    flaskProcess.start()
+
     # pass messages until program is ended
     while True:
         # check to see if it's time to quit
@@ -40,5 +55,7 @@ def run():
             msg = MessageBox.get(timeout=0.5)
             for owner in msg.to:
                 QueueOwners[owner].put(msg.msg)
-        except Queue.Empty:
+        except Empty:
+            pass
+        except IOError:
             pass
