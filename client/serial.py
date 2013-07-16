@@ -1,5 +1,6 @@
 import os, time, datetime
 import random, string
+import array
 import select
 from BeagleCommand import Debug
 from BeagleCommand.util import Packet, PacketException
@@ -73,9 +74,11 @@ class Serial(object):
         self.replyStore[ID] = replyQueue
         self.send(ID, 'get')
 
-    def reply(self, ID, vals):
+    def reply(self, ID, bytestr):
         """Send reply back to web server"""
-        self.replyStore[ID].put(vals)
+        vals = array.array('f')
+        vals.fromstring(bytestr)
+        self.replyStore[ID].put(vals.tolist())
 
     def time(self):
         """Get system time and send it to server"""
