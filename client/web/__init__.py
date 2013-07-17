@@ -13,8 +13,8 @@ conn = sqlite3.connect(dbpath)
 @app.route('/')
 def index():
     data = getData()
-    return render_template('index.html',data=data,v=data['voltage'][0][1],uw=data['usedwattData'][0][1],
-            cw=data['chargedwattData'][0][1],kw=data['kilowattData'][0][1])
+    return render_template('index.html',data=data,v=data['voltageData'][0][1],uw=round(data['usedwattData'][0][1],2),
+            cw=round(data['chargedwattData'][0][1],2),kw=round(data['kilowattData'][0][1],2))
 
 @app.route('/get')
 def get():

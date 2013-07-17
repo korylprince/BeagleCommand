@@ -6,11 +6,11 @@
 {% block page %}
 <div id="charts">
 <div id="voltage-chart" class="chart"></div>
+<div id="kilowatt-chart" class="chart"></div>
 <div id="motor-chart" class="chart"></div>
 <div id="charge-chart" class="chart"></div>
 <div id="usedwatt-chart" class="chart"></div>
 <div id="chargedwatt-chart" class="chart"></div>
-<div id="kilowatt-chart" class="chart"></div>
 </div>
 
 <script type="text/javascript">
@@ -82,7 +82,7 @@
         }
     });
     var usedwattChart = $.jqplot('usedwatt-chart', [data.usedwattData], {
-        title: 'Motor Watt Hours',
+        title: 'Motor kiloWatt Hours',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
             tickRenderer: $.jqplot.CanvasAxisTickRenderer,
@@ -99,12 +99,12 @@
                 }
             },
             yaxis:{
-                label:'Watt Hours'
+                label:'kiloWatt Hours'
             }
         }
     });
     var chargedwattChart = $.jqplot('chargedwatt-chart', [data.chargedwattData], {
-        title: 'Charged Watt Hours',
+        title: 'Charged kiloWatt Hours',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
             tickRenderer: $.jqplot.CanvasAxisTickRenderer,
@@ -121,7 +121,7 @@
                 }
             },
             yaxis:{
-                label:'Watt Hours'
+                label:'kiloWatt Hours'
             }
         }
     });
@@ -149,7 +149,7 @@
     });
 
 $(document).ready(function() {
-        setTimeout(function(){location.reload();},5000);
+        setTimeout(function(){location.reload();},15000);
 });
 </script>
 {% endblock %}
