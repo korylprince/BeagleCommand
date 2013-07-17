@@ -22,6 +22,8 @@ class Storage(Worker):
         self.voltage = 0.0
         self.usedAmps = 0.0
         self.chargedAmps = 0.0
+        self.usedwhs = 0.0
+        self.chargedwhs = 0.0
         self.kwhs = 0.0
 
         # set commit timer
@@ -74,3 +76,5 @@ class Storage(Worker):
         self.time, self.voltage, self.usedAmps, self.chargedAmps = row[0], row[2], row[3], row[4]
         # v * (charged-used amps) * duration * hps / 1000 = kWh
         self.kwhs += row[2]*(row[4]-row[3])*row[1]*hps/1000
+        self.usedwhs += row[2]*row[3]*row[1]*hps
+        self.chargedwhs += row[2]*row[4]*row[1]*hps

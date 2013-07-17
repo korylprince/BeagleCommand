@@ -41,25 +41,25 @@ class Serial(Worker):
             self.loop()
 
             # Check if main thread is ready to stop
-            if QuitinTime.wait(5):
+            if QuitinTime.wait(3):
                 self.tearDown()
                 self.output('Quitin\'')
                 return
 
     def loop(self):
-        for col in ['time', 'voltage', 'usedAmps', 'chargedAmps', 'kwhs']:
+        for col in ['time', 'voltage', 'usedAmps', 'chargedAmps', 'usedwhs', 'chargedwhs', 'kwhs']:
             while True:
                 if QuitinTime.is_set():
                     return
                 self.send('get-'+col,0.0)
-                time.sleep(1.0)
+                time.sleep(0.75)
                 self.readSerial()
                 if col in self.rowdict:
                     break
-            time.sleep(0.1)
+            time.sleep(0.075)
         r = self.rowdict
         m = Message(to = ['storage'], msg = ['put', [r['time'], r['voltage'],
-            r['usedAmps'], r['chargedAmps'], r['kwhs']]])
+            r['usedAmps'], r['chargedAmps'], r['usedwhs'], r['chargedwhs'], r['kwhs']]])
         self.MessageBox.put(m)
         self.rowdict.clear()
 

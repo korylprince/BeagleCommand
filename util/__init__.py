@@ -49,12 +49,16 @@ class Packet(object):
                 '\x05': 'get-voltage',
                 '\x06': 'get-usedAmps',
                 '\x07': 'get-chargedAmps',
-                '\x08': 'get-kwhs',
-                '\x09': 'reply-time',
-                '\x0a': 'reply-voltage',
-                '\x0b': 'reply-usedAmps',
-                '\x0c': 'reply-chargedAmps',
-                '\x0d': 'reply-kwhs'
+                '\x08': 'get-usedwhs',
+                '\x09': 'get-chargedwhs',
+                '\x0a': 'get-kwhs',
+                '\x0b': 'reply-time',
+                '\x0c': 'reply-voltage',
+                '\x0d': 'reply-usedAmps',
+                '\x0e': 'reply-chargedAmps',
+                '\x0f': 'reply-usedwhs',
+                '\x10': 'reply-chargedwhs',
+                '\x11': 'reply-kwhs'
                }
 
     codes = {v:k for k,v in commands.iteritems()}

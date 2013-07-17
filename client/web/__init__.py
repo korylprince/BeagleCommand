@@ -13,7 +13,8 @@ conn = sqlite3.connect(dbpath)
 @app.route('/')
 def index():
     data = getData()
-    return render_template('index.html',data=data,kw=data['kilowattData'][0][1])
+    return render_template('index.html',data=data,v=data['voltage'][0][1],uw=data['usedwattData'][0][1],
+            cw=data['chargedwattData'][0][1],kw=data['kilowattData'][0][1])
 
 @app.route('/get')
 def get():
@@ -33,12 +34,16 @@ def getData():
     voltage = list()
     motor = list()
     charge = list()
+    usedwatt = list()
+    chargedwatt = list()
     kilowatt = list()
     for row in conn.execute('select * from data order by timestamp desc limit 60;'):
         t = int(row[0]*1000)
         voltage.append([t,row[1]])
         motor.append([t,row[2]])
         charge.append([t,row[3]])
-        kilowatt.append([t,row[4]])
-    return dict(voltageData=voltage, motorData=motor, chargeData=charge, kilowattData=kilowatt)
+        usedwatt.append([t,row[4]])
+        chargedwatt.append([t,row[5]])
+        kilowatt.append([t,row[6]])
+    return dict(voltageData=voltage, motorData=motor, chargeData=charge, usedwattData=usedwatt, chargedwattData=chargedwatt, kilowattData=kilowatt)
 
