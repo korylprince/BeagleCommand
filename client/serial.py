@@ -1,4 +1,4 @@
-import os, time
+import time
 import Queue
 from BeagleCommand import QuitinTime, Debug
 from BeagleCommand.util import Worker, Message, Packet, PacketException
@@ -41,7 +41,7 @@ class Serial(Worker):
             self.loop()
 
             # Check if main thread is ready to stop
-            if QuitinTime.wait(3):
+            if QuitinTime.wait(2):
                 self.tearDown()
                 self.output('Quitin\'')
                 return

@@ -9,6 +9,8 @@
 <div id="kilowatt-chart" class="chart"></div>
 <div id="motor-chart" class="chart"></div>
 <div id="charge-chart" class="chart"></div>
+<div id="usedwatth-chart" class="chart"></div>
+<div id="chargedwatth-chart" class="chart"></div>
 <div id="usedwatt-chart" class="chart"></div>
 <div id="chargedwatt-chart" class="chart"></div>
 </div>
@@ -24,19 +26,21 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
                 label:'Volts'
             }
-        }
-    });
+        } });
     var motorChart = $.jqplot('motor-chart', [data.motorData], {
         title: 'Motor Amps',
         axesDefaults: {
@@ -46,12 +50,15 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
@@ -68,12 +75,15 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
@@ -81,7 +91,7 @@
             }
         }
     });
-    var usedwattChart = $.jqplot('usedwatt-chart', [data.usedwattData], {
+    var usedwatthChart = $.jqplot('usedwatth-chart', [data.usedwatthData], {
         title: 'Motor kiloWatt Hours',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -90,12 +100,15 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
@@ -103,7 +116,7 @@
             }
         }
     });
-    var chargedwattChart = $.jqplot('chargedwatt-chart', [data.chargedwattData], {
+    var chargedwatthChart = $.jqplot('chargedwatth-chart', [data.chargedwatthData], {
         title: 'Charged kiloWatt Hours',
         axesDefaults: {
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -112,16 +125,69 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
                 label:'kiloWatt Hours'
+            }
+        }
+    });
+    var usedwattChart = $.jqplot('usedwatt-chart', [data.usedwattData], {
+        title: 'Motor kiloWatts',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        highlighter: {
+            show: true
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%M:%S'
+                }
+            },
+            yaxis:{
+                label:'kiloWatts'
+            }
+        }
+    });
+    var chargedwattChart = $.jqplot('chargedwatt-chart', [data.chargedwattData], {
+        title: 'Charged kiloWatts',
+        axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+            tickOptions: {
+                angle: -30
+            }
+        },
+        highlighter: {
+            show: true
+        },
+        axes:{
+            xaxis:{
+                label:'Time',
+                renderer: $.jqplot.DateAxisRenderer,
+                tickOptions: {
+                    formatString: '%M:%S'
+                }
+            },
+            yaxis:{
+                label:'kiloWatts'
             }
         }
     });
@@ -134,12 +200,15 @@
                 angle: -30
             }
         },
+        highlighter: {
+            show: true
+        },
         axes:{
             xaxis:{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
                 tickOptions: {
-                    formatString: '%M'
+                    formatString: '%M:%S'
                 }
             },
             yaxis:{
@@ -147,9 +216,48 @@
             }
         }
     });
+function update() {
+    $.get('/get',
+        function(data) {   
+            voltageChart.series[0].data = data.voltageData;
+            motorChart.series[0].data = data.motorData;
+            chargeChart.series[0].data = data.chargeData;
+            usedwatthChart.series[0].data = data.usedwatthData;
+            chargedwatthChart.series[0].data = data.chargedwatthData;
+            usedwattChart.series[0].data = data.usedwattData;
+            chargedwattChart.series[0].data = data.chargedwattData;
+            kilowattChart.series[0].data = data.kilowattData;
 
+            voltageChart.resetAxesScale();
+            motorChart.resetAxesScale();
+            chargeChart.resetAxesScale();
+            usedwatthChart.resetAxesScale();
+            chargedwatthChart.resetAxesScale();
+            usedwattChart.resetAxesScale();
+            chargedwattChart.resetAxesScale();
+            kilowattChart.resetAxesScale();
+            
+            voltageChart.replot();
+            motorChart.replot();
+            chargeChart.replot();
+            usedwatthChart.replot();
+            chargedwatthChart.replot();
+            usedwattChart.replot();
+            chargedwattChart.replot();
+            kilowattChart.replot();
+
+            $("#v").html(data.v);
+            $("#uwh").html(data.uwh);
+            $("#cwh").html(data.cwh);
+            $("#uw").html(data.uw);
+            $("#cw").html(data.cw);
+            $("#kwh").html(data.kwh);
+        });
+    setTimeout(update,2000);
+}
 $(document).ready(function() {
-        setTimeout(function(){location.reload();},15000);
+    //setTimeout(function(){location.reload();},15000);
+    setTimeout(update,2000);
 });
 </script>
 {% endblock %}

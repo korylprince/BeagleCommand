@@ -13,12 +13,20 @@ conn = sqlite3.connect(dbpath)
 @app.route('/')
 def index():
     data = getData()
-    return render_template('index.html',data=data,v=data['voltageData'][0][1],uw=round(data['usedwattData'][0][1],2),
-            cw=round(data['chargedwattData'][0][1],2),kw=round(data['kilowattData'][0][1],2))
+    return render_template('index.html',data=data,v=data['voltageData'][0][1],uwh=round(data['usedwatthData'][0][1],2),
+            cwh=round(data['chargedwatthData'][0][1],2),uw=round(data['usedwattData'][0][1],2),
+            cw=round(data['chargedwattData'][0][1],2),kwh=round(data['kilowattData'][0][1],2))
 
 @app.route('/get')
 def get():
-    return jsonify()
+    data = getData()
+    data['v'] = round(data['voltageData'][0][1],2)
+    data['uwh'] = round(data['usedwatthData'][0][1],2)
+    data['cwh'] = round(data['chargedwatthData'][0][1],2)
+    data['uw'] = round(data['usedwattData'][0][1],2)
+    data['cw'] = round(data['chargedwattData'][0][1],2)
+    data['kwh'] = round(data['kilowattData'][0][1],2)
+    return jsonify(data)
 
 @app.route('/command')
 def command():
@@ -34,6 +42,8 @@ def getData():
     voltage = list()
     motor = list()
     charge = list()
+    usedwatth = list()
+    chargedwatth = list()
     usedwatt = list()
     chargedwatt = list()
     kilowatt = list()
@@ -42,8 +52,11 @@ def getData():
         voltage.append([t,row[1]])
         motor.append([t,row[2]])
         charge.append([t,row[3]])
-        usedwatt.append([t,row[4]])
-        chargedwatt.append([t,row[5]])
+        usedwatth.append([t,row[4]])
+        chargedwatth.append([t,row[5]])
+        usedwatt.append([t,row[4]*row[1]])
+        chargedwatt.append([t,row[5]*row[1]])
         kilowatt.append([t,row[6]])
-    return dict(voltageData=voltage, motorData=motor, chargeData=charge, usedwattData=usedwatt, chargedwattData=chargedwatt, kilowattData=kilowatt)
+    return dict(voltageData=voltage, motorData=motor, chargeData=charge, usedwatthData=usedwatth,
+            chargedwatthData=chargedwatth, usedwattData=usedwatt, chargedwattData=chargedwatt, kilowattData=kilowatt)
 

@@ -16,6 +16,7 @@
     <script src="{{ url_for('static', filename='js/jqplot.canvasAxisTickRenderer.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jqplot.canvasTextRenderer.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jqplot.dateAxisRenderer.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jqplot.highlighter.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
@@ -29,10 +30,12 @@
                     {% endblock %}
                 </ul>
                 <ul class="nav kilowatt">
-                    <li><a>kiloWatt Hours: <span class="kilowatt text">{{kw}}</span></a></li>
-                    <li><a>Battery Voltage: <span class="kilowatt text">{{v}}</span></a></li>
-                    <li><a>Motor Watt Hours: <span class="kilowatt text">{{uw}}</span></a></li>
-                    <li><a>Charged Watt Hours: <span class="kilowatt text">{{cw}}</span></a></li>
+                    <li><a>Total kWHrs: <span id="kwh" class="kilowatt text">{{kwh}}</span></a></li>
+                    <li><a>Battery V: <span id="v" class="kilowatt text">{{v}}</span></a></li>
+                    <li><a>Motor kWHrs: <span id="uwh" class="kilowatt text">{{uwh}}</span></a></li>
+                    <li><a>Charged kWHrs: <span id="cwh" class="kilowatt text">{{cwh}}</span></a></li>
+                    <li><a>Motor kW: <span id="uw" class="kilowatt text">{{uw}}</span></a></li>
+                    <li><a>Charge kW: <span id="cw" class="kilowatt text">{{cw}}</span></a></li>
                 </ul>
             </div>
         </div>
