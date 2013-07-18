@@ -47,7 +47,7 @@ class Serial(Worker):
                 return
 
     def loop(self):
-        for col in ['time', 'voltage', 'usedAmps', 'chargedAmps', 'usedkwhs', 'chargedkwhs', 'kwhs']:
+        for col in ['time', 'voltage', 'used', 'charged', 'usedwhs', 'chargedwhs', 'totalwhs']:
             while True:
                 if QuitinTime.is_set():
                     return
@@ -59,7 +59,7 @@ class Serial(Worker):
             time.sleep(0.1)
         r = self.rowdict
         m = Message(to = ['storage'], msg = ['put', [r['time'], r['voltage'],
-            r['usedAmps'], r['chargedAmps'], r['usedkwhs'], r['chargedkwhs'], r['kwhs']]])
+            r['used'], r['charged'], r['usedwhs'], r['chargedwhs'], r['totalwhs']]])
         self.MessageBox.put(m)
         self.rowdict.clear()
 

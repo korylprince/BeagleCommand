@@ -19,4 +19,7 @@ TimeUpdated = Event()
 import serial as pyserial
 import util
 import client
-import server
+try:
+    import server
+except ImportError:
+    pass
