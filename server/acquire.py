@@ -36,17 +36,19 @@ class Acquire(Worker):
         v = list()
         ua = list()
         ca = list()
-        for x in range(0,100):
+        for x in range(0,10):
             v.append(ADC.read_raw('AIN1'))
+            time.sleep(0.05)
             ua.append(ADC.read_raw('AIN2'))
+            time.sleep(0.05)
             ca.append(ADC.read_raw('AIN3'))
-            time.sleep(0.01)
+            time.sleep(0.05)
         finish = time.time()
         d = finish - start
         t = start + d/2
         m = Message(to=['storage'],msg=['put', [t, d,
-            self.mapVoltage(sum(v)/100), self.mapUsed(sum(ua)/100),
-            self.mapCharged(sum(ca)/100)]])
+            self.mapVoltage(sum(v)/10), self.mapUsed(sum(ua)/10),
+            self.mapCharged(sum(ca)/10)]])
         self.MessageBox.put(m)
 
     def mapVoltage(self,v):
