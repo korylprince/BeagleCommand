@@ -16,13 +16,15 @@
 </div>
 
 <script type="text/javascript">
-var data = {{data|tojson}};
-{{chartjs}}
+var data = {{data|safe|nl}};
+
+{{ chartjs|safe|nl }}
+
 function update() {
     $.get('/get',
         function(data) {   
 
-            {{updatejs}}
+            {{ updatejs|safe }}
 
             $("#t").html(data.t);
             $("#v").html(data.v);

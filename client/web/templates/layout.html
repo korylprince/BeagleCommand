@@ -28,20 +28,22 @@
                     {% block nav %}
                     {% endblock %}
                 </ul>
-                <ul class="nav kilowatt">
-                    <li><a>Last Updated: <span id="t" class="kilowatt text">{{t}}</span></a></li>
-                    <li><a>Total Whs: <span id="twh" class="kilowatt text">{{twh}}</span></a></li>
-                    <li><a>Battery V: <span id="v" class="kilowatt text">{{v}}</span></a></li>
-                    <li><a>Motor Whs: <span id="uwh" class="kilowatt text">{{uwh}}</span></a></li>
-                    <li><a>Charged Whs: <span id="cwh" class="kilowatt text">{{cwh}}</span></a></li>
-                    <li><a>Motor W: <span id="uw" class="kilowatt text">{{uw}}</span></a></li>
-                    <li><a>Charge W: <span id="cw" class="kilowatt text">{{cw}}</span></a></li>
-                </ul>
             </div>
         </div>
 
     </div>
     <div id="page">
+        <div id="quickwrapper">
+            <ul class="nav kilowatt">
+                <li><a>Last Updated: <span id="t" class="kilowatt text">{{t}}</span></a></li>
+                <li><a>Total Whs: <span id="twh" class="kilowatt text">{{twh}}</span></a></li>
+                <li><a>Battery V: <span id="v" class="kilowatt text">{{v}}</span></a></li>
+                <li><a>Motor Whs: <span id="uwh" class="kilowatt text">{{uwh}}</span></a></li>
+                <li><a>Charged Whs: <span id="cwh" class="kilowatt text">{{cwh}}</span></a></li>
+                <li><a>Motor W: <span id="uw" class="kilowatt text">{{uw}}</span></a></li>
+                <li><a>Charge W: <span id="cw" class="kilowatt text">{{cw}}</span></a></li>
+            </ul>
+        </div>
         {% block page %}
         {% endblock %}
     </div>

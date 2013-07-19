@@ -2,17 +2,25 @@ import sqlite3
 import os, datetime
 from flask import Flask
 from flask import render_template, jsonify, request
+from jinja2.environment import Environment
 import BeagleCommand
 from BeagleCommand.util import Message
 
 app = Flask(__name__)
+environment = Environment()
 
 dbpath = '{0}/storage/{1}-web.db'.format(os.path.abspath(os.path.dirname(BeagleCommand.__file__)),datetime.datetime.now().strftime('%m.%d.%Y'))
 conn = sqlite3.connect(dbpath)
 
+def nl(x):
+    return x.replace('\\n','\n')
+
+app.jinja_env.filters['nl'] = nl
+
 @app.route('/')
 def index():
-    return render_template('index.html',data=dict(getData().items()+getJS().items()))
+    chartjs, updatejs = getJS() 
+    return render_template('index.html',data=getData(), chartjs=chartjs, updatejs=updatejs)
 
 @app.route('/get')
 def get():
@@ -51,7 +59,7 @@ def getData():
     data = dict(voltageData=voltage, usedData=used, chargedData=charged, usedwhData=usedwh,
             chargedwhData=chargedwh, usedwData=usedw, chargedwData=chargedw, totalwhData=totalwh)
 
-    data['t'] = datetime.datetime.fromtimestamp(data['voltageData'][0][0]).strftime('%M:%S')
+    data['t'] = datetime.datetime.fromtimestamp(data['voltageData'][0][0]/1000.0).strftime('%M:%S')
     data['v'] = round(data['voltageData'][0][1],2)
     data['uwh'] = round(data['usedwhData'][0][1],2)
     data['cwh'] = round(data['chargedwhData'][0][1],2)
@@ -72,42 +80,42 @@ def getJS():
     chartjs.append(chartTemplate.format(name="totalwh", title="Total (Net) Watt Hours", y="Watt Hours (Wh)"))
 
     updatejs = []
-    updatejs.append(updateTemplate(name="voltage"))
-    updatejs.append(updateTemplate(name="used"))
-    updatejs.append(updateTemplate(name="charged"))
-    updatejs.append(updateTemplate(name="usedwh"))
-    updatejs.append(updateTemplate(name="chargedwh"))
-    updatejs.append(updateTemplate(name="usedw"))
-    updatejs.append(updateTemplate(name="chargedw"))
-    updatejs.append(updateTemplate(name="totalwh"))
+    updatejs.append(updateTemplate.format(name="voltage"))
+    updatejs.append(updateTemplate.format(name="used"))
+    updatejs.append(updateTemplate.format(name="charged"))
+    updatejs.append(updateTemplate.format(name="usedwh"))
+    updatejs.append(updateTemplate.format(name="chargedwh"))
+    updatejs.append(updateTemplate.format(name="usedw"))
+    updatejs.append(updateTemplate.format(name="chargedw"))
+    updatejs.append(updateTemplate.format(name="totalwh"))
 
-    return dict(chartjs=''.join(chartjs), updatejs=''.join(updatejs))
+    return ''.join(chartjs), ''.join(updatejs)
 
 chartTemplate = """
-    var {name}Chart = $.jqplot('{name}-chart', [data.{name}Data], {
+    var {name}Chart = $.jqplot('{name}-chart', [data.{name}Data], {{
         title: '{title}',
-        axesDefaults: {
+        axesDefaults: {{
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
             tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
+            tickOptions: {{
                 angle: -30
-            }
-        },
-        highlighter: {
+            }}
+        }},
+        highlighter: {{
             show: true
-        },
-        axes:{
-            xaxis:{
+        }},
+        axes:{{
+            xaxis:{{
                 label:'Time',
                 renderer: $.jqplot.DateAxisRenderer,
-                tickOptions: {
+                tickOptions: {{
                     formatString: '%M:%S'
-                }
-            },
-            yaxis:{
+                }}
+            }},
+            yaxis:{{
                 label:'{y}'
-            }
-        } });
+            }}
+        }}}});
 
 """
 updateTemplate = """
