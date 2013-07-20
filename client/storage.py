@@ -1,5 +1,5 @@
 import sqlite3
-import os
+import os, time
 from datetime import datetime
 import BeagleCommand
 from BeagleCommand.util import Worker
@@ -29,3 +29,16 @@ class Storage(Worker):
                 (row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
 
         self.conn.commit()
+
+    def reset(self):
+        self.output('Reseting... Closing '+self.dbpath)
+        self.conn.commit()
+        self.conn.close()
+        
+        os.rename(self.dbpath,self.dbpath+str(time.time()))
+
+        self.output('Using '+self.dbpath)
+        self.conn = sqlite3.connect(self.dbpath)
+        self.conn.execute('create table if not exists data (time real primary key, duration real, voltage real, used real, charged real);')
+        self.cursor = self.conn.cursor()
+

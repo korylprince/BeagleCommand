@@ -85,3 +85,5 @@ class Serial(Worker):
 
     def reset(self, val):
         self.send('reset', 0.0)
+        m = Message(to = ['storage'], msg = ['reset'])
+        self.MessageBox.put(m)
