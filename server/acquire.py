@@ -50,10 +50,12 @@ class Acquire(Worker):
         self.MessageBox.put(m)
 
     def mapVoltage(self,v):
-        return v
+        return 0.04897580239701511*v+0.07516742524744302
 
     def mapUsed(self,ua):
-        return ua
+        v = 0.020815852896545563*ua -17.427836293849857
+        return v*20
 
     def mapCharged(self,ca):
-        return ca
+        v = 0.02053496737093381*ca-17.132253271999488
+        return v*2.5
