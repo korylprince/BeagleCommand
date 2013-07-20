@@ -50,3 +50,7 @@ class Serial(Worker):
     def poweroff(self, val):
         QuitinTime.set()
         PowerOff.set()
+    
+    def reset(self,val):
+        m = Message(to=['storage'],msg=['reset'])
+        self.MessageBox.put(m)

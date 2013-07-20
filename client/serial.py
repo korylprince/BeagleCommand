@@ -82,3 +82,6 @@ class Serial(Worker):
 
     def poweroff(self, val):
         self.send('poweroff', 0.0)
+
+    def reset(self, val):
+        self.send('reset', 0.0)

@@ -8,6 +8,7 @@
 <div id="buttons" class="span12">
     <button id="rebootbtn" class="btn btn-danger" data-toggle="modal" data-target="#reboot-modal">Reboot</button>
     <button id="poweroffbtn" class="btn btn-danger" data-toggle="modal" data-target="#poweroff-modal">Power Off</button>
+    <button id="resetbtn" class="btn btn-danger" data-toggle="modal" data-target="#reset-modal">Reset Data</button>
 </div>
 
 <div id="reboot-modal" class="modal hide fade">
@@ -37,6 +38,21 @@
         <a href="#" class="btn btn-primary" data-dismiss="modal">No</a>
     </div>
 </div>
+
+<div id="reset-modal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Are you sure you want to Reset?</h3>
+    </div>
+    <div class="modal-body">
+        <p>This will back up the current database, and reset all values. You will not be able to access them while on the trip.</p>
+    </div>
+    <div class="modal-footer">
+        <a id="reset-yes" href="#" class="btn">Yes</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">No</a>
+    </div>
+</div>
+
 
 <div id="alert" class="alert alert-info hide fade in span4">
     <a class="close" data-dismiss="alert" href="#">&times;</a>
@@ -76,9 +92,20 @@ function poweroff() {
           );
 }
 
+function reset() {
+    $.post('/command',
+            {'command':'reset'},
+            function() {
+                $('#reset-modal').modal('hide');
+                doAlert('Resetting... Please wait 30 seconds before loading graphs.');
+            }
+          );
+}
+
 $(document).ready(function() {
     $("#reboot-yes").click(reboot);
     $("#poweroff-yes").click(poweroff);
+    $("#reset-yes").click(reset);
 });
 </script>
 {% endblock %}

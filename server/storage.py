@@ -78,3 +78,17 @@ class Storage(Worker):
         self.totalwhs += row[2]*(row[4]-row[3])*row[1]*hps
         self.usedwhs += row[2]*row[3]*row[1]*hps
         self.chargedwhs += row[2]*row[4]*row[1]*hps
+
+    def reset(self):
+        self.output('Reseting... Closing '+self.dbpath)
+        self.conn.commit()
+        self.conn.close()
+        
+        os.rename(self.dbpath,self.dbpath+str(time.time()))
+
+        self.output('Using '+self.dbpath)
+        self.conn = sqlite3.connect(self.dbpath)
+        self.conn.execute('create table if not exists data (time real primary key, duration real, voltage real, used real, charged real);')
+        self.cursor = self.conn.cursor()
+        for row in self.cursor.execute('select time, duration, voltage, used, charged from data order by time;'):
+            self.process(row)

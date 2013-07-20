@@ -58,7 +58,8 @@ class Packet(object):
                 '\x0e': 'reply-charged',
                 '\x0f': 'reply-usedwhs',
                 '\x10': 'reply-chargedwhs',
-                '\x11': 'reply-totalwhs'
+                '\x11': 'reply-totalwhs',
+                '\x12': 'reset'
                }
 
     codes = {v:k for k,v in commands.iteritems()}
